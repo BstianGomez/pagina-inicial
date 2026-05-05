@@ -1,0 +1,210 @@
+diff --git a/resources/views/dashboard.blade.php b/resources/views/dashboard.blade.php
+index a36120b..749ad2f 100644
+--- a/resources/views/dashboard.blade.php
++++ b/resources/views/dashboard.blade.php
+@@ -1,126 +1,10 @@
+-<x-layouts.app
+-    page_title=""
+-    page_subtitle="">
++<x-layouts.app>
++    <x-slot name="page_title">Bienvenido, {{ auth()->user()->name }}</x-slot>
++    <x-slot name="page_subtitle">Revisa tu actividad reciente y accede rápido a las acciones mas usadas.</x-slot>
+ 
+     <style>
+-        .content-header {
+-            padding: 16px 22px;
+-        }
+-
+-        .content-header h1 {
+-            font-size: 18px;
+-            margin: 0 0 3px;
+-        }
+-
+-        .content-header p {
+-            font-size: 12px;
+-            margin: 0;
+-        }
+-
+-        .dash-hero {
+-            background: linear-gradient(135deg, #0f6bb6 0%, #1b7dc8 100%);
+-            border-radius: 18px;
+-            color: #fff;
+-            padding: 20px 24px;
+-            box-shadow: 0 12px 24px rgba(15, 107, 182, 0.18);
+-            position: relative;
+-            overflow: hidden;
+-            margin-bottom: 18px;
+-        }
+-
+-        .dash-hero-inner {
+-            position: relative;
+-            z-index: 1;
+-            display: flex;
+-            align-items: center;
+-            justify-content: flex-start;
+-            gap: 18px;
+-        }
+-
+-        .dash-fixed-fund {
+-            margin-bottom: 18px;
+-            border: 1px solid #d9e8fb;
+-            border-radius: 16px;
+-            background: linear-gradient(140deg, #f5f9ff 0%, #e9f3ff 100%);
+-            box-shadow: 0 10px 24px rgba(15, 107, 182, 0.12);
+-            padding: 16px 18px;
+-            display: grid;
+-            gap: 12px;
+-        }
+-
+-        .dash-fixed-fund-title {
+-            margin: 0;
+-            font-size: 11px;
+-            font-weight: 800;
+-            letter-spacing: 0.12em;
+-            text-transform: uppercase;
+-            color: #1e4f8d;
+-        }
++       
+ 
+-        .dash-fixed-fund-grid {
+-            display: grid;
+-            grid-template-columns: repeat(2, minmax(0, 1fr));
+-            gap: 12px;
+-        }
+-
+-        .dash-fixed-fund-item {
+-            border-radius: 12px;
+-            background: #ffffff;
+-            border: 1px solid #dbe8f7;
+-            padding: 12px;
+-        }
+-
+-        .dash-fixed-fund-label {
+-            margin: 0;
+-            font-size: 10px;
+-            font-weight: 800;
+-            letter-spacing: 0.1em;
+-            text-transform: uppercase;
+-            color: #617a98;
+-        }
+-
+-        .dash-fixed-fund-value {
+-            margin: 4px 0 0;
+-            font-size: 27px;
+-            line-height: 1.1;
+-            font-weight: 800;
+-            letter-spacing: -0.03em;
+-            color: #0f3f76;
+-        }
+-
+-        .dash-hero-copy {
+-            min-width: 0;
+-            flex: 1;
+-        }
+-
+-        .dash-hero::before {
+-            content: '';
+-            position: absolute;
+-            right: -60px;
+-            top: -80px;
+-            width: 220px;
+-            height: 220px;
+-            border-radius: 999px;
+-            background: rgba(255, 255, 255, 0.13);
+-            pointer-events: none;
+-        }
+-
+-        .dash-hero h2 {
+-            margin: 0;
+-            font-size: clamp(19px, 2.2vw, 26px);
+-            line-height: 1.08;
+-            font-weight: 800;
+-            letter-spacing: -0.03em;
+-        }
+-
+-        .dash-hero p {
+-            margin: 6px 0 0;
+-            font-size: 13px;
+-            color: rgba(255, 255, 255, 0.92);
+-            max-width: 62ch;
+-        }
+-
+-        .dash-quick-grid {
+             display: grid;
+             grid-template-columns: repeat(3, minmax(0, 1fr));
+             gap: 12px;
+@@ -352,10 +236,7 @@
+         }
+ 
+         @media (max-width: 768px) {
+-            .dash-hero-inner {
+-                flex-direction: column;
+-                align-items: flex-start;
+-            }
++            
+ 
+             .dash-fixed-fund-grid {
+                 grid-template-columns: 1fr;
+@@ -363,15 +244,6 @@
+         }
+     </style>
+ 
+-    <div class="dash-hero">
+-        <div class="dash-hero-inner">
+-            <div class="dash-hero-copy">
+-                <h2>Bienvenido, {{ auth()->user()->name }}</h2>
+-                <p>Revisa tu actividad reciente y accede rapido a las acciones mas usadas.</p>
+-            </div>
+-        </div>
+-    </div>
+-
+     @if(!empty($fixedFundSummary))
+         <section class="dash-fixed-fund">
+             <h3 class="dash-fixed-fund-title">Resumen Fondo Fijo</h3>
+@@ -389,23 +261,23 @@
+     @endif
+ 
+     <div class="dash-quick-grid">
+-        <a href="{{ route('expenses.create') }}" class="dash-quick-card">
++        <a href="{{ route('expenses.index') }}" class="dash-quick-card">
+             <span class="dash-quick-icon">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+             </span>
+             <span>
+-                <h3 class="dash-quick-title">Nueva Solicitud</h3>
+-                <p class="dash-quick-copy">Inicia una rendicion nueva en dos pasos.</p>
++                <h3 class="dash-quick-title">Crear Gastos</h3>
++                <p class="dash-quick-copy">Ingresa múltiples gastos y adjunta tus boletas.</p>
+             </span>
+         </a>
+ 
+-        <a href="{{ route('reports.index') }}" class="dash-quick-card">
++        <a href="{{ route('expenses.create') }}" class="dash-quick-card">
+             <span class="dash-quick-icon">
+                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+             </span>
+             <span>
+-                <h3 class="dash-quick-title">Ver Rendiciones</h3>
+-                <p class="dash-quick-copy">Consulta estado, filtros y detalle de tus solicitudes.</p>
++                <h3 class="dash-quick-title">Nueva Rendición</h3>
++                <p class="dash-quick-copy">Inicia una rendición nueva agrupando tus gastos.</p>
+             </span>
+         </a>
+ 
+@@ -430,6 +302,16 @@
+                 </span>
+             </a>
+         @endif
++
++        <a href="{{ route('analytics.index') }}" class="dash-quick-card">
++            <span class="dash-quick-icon">
++                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
++            </span>
++            <span>
++                <h3 class="dash-quick-title">Analytics</h3>
++                <p class="dash-quick-copy">Gráficos, estadísticas y exportación de datos.</p>
++            </span>
++        </a>
+     </div>
+ 
+     @php

@@ -1,0 +1,300 @@
+<x-layouts.app
+    page_title="Listado de Gastos"
+    page_subtitle="Carga multiples gastos en una sola rendicion.">
+    <x-slot name="header_title">Gastos</x-slot>
+
+    <style>
+        .expenses-page {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .bulk-shell {
+            border-radius: 20px;
+            border: 1px solid #dfe8f2;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .bulk-head {
+            padding: 1rem 1.2rem;
+            background: #ffffff;
+            border-bottom: 1px solid #e4edf7;
+        }
+
+        .bulk-head h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 900;
+            color: #0f3f67;
+        }
+
+        .bulk-head p {
+            margin: 0.2rem 0 0;
+            font-size: 0.8rem;
+            color: #5a738c;
+        }
+
+        .bulk-body {
+            padding: 1rem 1.1rem 1.2rem;
+            display: grid;
+            gap: 0.9rem;
+        }
+
+        .bulk-main-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.8fr;
+            gap: 0.8rem;
+        }
+
+        .field {
+            display: grid;
+            gap: 0.35rem;
+            min-width: 0;
+        }
+
+        .field label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-weight: 800;
+            color: #64748b;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            border: 1px solid #d9e5f2;
+            border-radius: 10px;
+            background: #fff;
+            padding: 0.55rem 0.65rem;
+            font-size: 0.86rem;
+            color: #0f172a;
+            width: 100%;
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .field input.file-selected {
+            background-color: #f0fdf4 !important;
+            border-color: #10b981 !important;
+            color: #047857 !important;
+            font-weight: bold;
+        }
+
+        .field input[type="file"] {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .rows-wrap {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .expense-row {
+            border: 1px solid #deebf8;
+            border-radius: 14px;
+            padding: 0.8rem;
+            background: #fbfdff;
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .expense-row-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .expense-row-title {
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #1d4f77;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .row-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .row-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
+
+        .btn {
+            border-radius: 11px;
+            padding: 0.56rem 0.9rem;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 140ms ease;
+        }
+
+        .btn-add {
+            background: #f0f7ff;
+            border-color: #cfe3f6;
+            color: #1f5d8e;
+        }
+
+        .btn-add:hover {
+            background: #e4f1ff;
+        }
+
+        .btn-remove {
+            background: #fff6f5;
+            border-color: #ffd3cf;
+            color: #b42318;
+        }
+
+        .btn-remove:hover {
+            background: #ffeceb;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+            border-top: 1px solid #e9f1fa;
+            padding-top: 0.85rem;
+        }
+
+        .btn-draft {
+            background: #ffffff;
+            border-color: #d9e5f2;
+            color: #4a6785;
+        }
+
+        .btn-draft:hover {
+            background: #f9fbfd;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #0f6bb6 0%, #1488db 100%);
+            border-color: #0f6bb6;
+            color: #fff;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #0d5e9f 0%, #1278c2 100%);
+        }
+
+        .error-inline {
+            font-size: 0.72rem;
+            color: #c81e1e;
+            margin-top: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .bulk-main-grid,
+            .row-grid,
+            .row-grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    @php
+        $oldRows = old('expenses', []);
+        $initialRows = count($oldRows) > 0 ? $oldRows : [[
+            'category_id' => '',
+            'ceco_id' => '',
+            'reason' => '',
+            'description' => '',
+            'expense_date' => '',
+            'amount' => '',
+            'provider_name' => '',
+            'provider_rut' => '',
+            'document_type' => 'Boleta',
+        ]];
+    @endphp
+
+    <div class="expenses-page">
+        <section class="bulk-shell">
+            <div class="bulk-head">
+                <h2>Carga Masiva de Gastos</h2>
+                <p>Agrega varios gastos y envialos en una sola rendicion.</p>
+            </div>
+
+            <form method="POST" action="{{ route('expenses.storeBulk') }}" enctype="multipart/form-data" class="bulk-body" id="bulkExpensesForm">
+                @csrf
+
+                <div class="bulk-main-grid">
+                    <div class="field">
+                        <label for="title">Titulo de la rendicion</label>
+                        <input id="title" type="text" name="title" value="{{ old('title') }}" required placeholder="Ej: Gastos de terreno - abril">
+                        @error('title') <div class="error-inline">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="field">
+                        <label>Total de filas</label>
+                        <input id="rowsCounter" type="text" value="{{ count($initialRows) }} gasto(s)" readonly>
+                    </div>
+                </div>
+
+                @error('expenses') <div class="error-inline">{{ $message }}</div> @enderror
+
+                <div class="rows-wrap" id="rowsWrap">
+                    @foreach($initialRows as $i => $row)
+                        <div class="expense-row" data-row-index="{{ $i }}">
+                            <div class="expense-row-head">
+                                <div class="expense-row-title">Gasto #<span class="row-number">{{ $i + 1 }}</span></div>
+                                <button type="button" class="btn btn-remove remove-row-btn">Quitar</button>
+                            </div>
+
+                            <div class="row-grid">
+                                <div class="field">
+                                    <label>Categoria</label>
+                                    <select name="expenses[{{ $i }}][category_id]" required>
+                                        <option value="">Seleccione</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" {{ (string) ($row['category_id'] ?? '') === (string) $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('expenses.' . $i . '.category_id') <div class="error-inline">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="field">
+                                    <label>CECO</label>
+                                    <select name="expenses[{{ $i }}][ceco_id]" required>
+                                        <option value="">Seleccione</option>
+                                        @foreach($cecos as $ceco)
+                                            <option value="{{ $ceco->id }}" {{ (string) ($row['ceco_id'] ?? '') === (string) $ceco->id ? 'selected' : '' }}>
+                                                {{ $ceco->code }} - {{ $ceco->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('expenses.' . $i . '.ceco_id') <div class="error-inline">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="field">
+                                    <label>Documento</label>
+                                    <select name="expenses[{{ $i }}][document_type]" required>
+                                        @foreach(['Boleta', 'Factura', 'Recibo', 'Ticket', 'Otros'] as $docType)
+                                            <option value="{{ $docType }}" {{ ($row['document_type'] ?? 'Boleta') === $docType ? 'selected' : '' }}>{{ $docType }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('expenses.' . $i . '.document_type') <div class="error-inline">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="row-grid-3">
+                                <div class="field">
+                                    <label>Motivo</label>
+                                    <input type="text" name="expenses[{{ $i }}][reason]" value="{{ $row['reason'] ?? '' }}" required>
+                                    @error('expenses.' . $i . '.reason') <div class="error-inline">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="field">
