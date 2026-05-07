@@ -13,14 +13,9 @@ class UserController extends Controller
     // Roles que pueden gestionar usuarios
     private const ROLES_ADMIN = ['super_admin', 'admin'];
 
-    private function rolActual(): string
-    {
-        return Auth::user()->rol ?? 'usuario';
-    }
-
     private function puedeGestionarUsuarios(): bool
     {
-        return in_array($this->rolActual(), self::ROLES_ADMIN);
+        return Auth::user()->isAdmin();
     }
 
     public function index()
@@ -38,28 +33,25 @@ class UserController extends Controller
             abort(403);
         }
 
-        $rolesPermitidos = $this->rolActual() === 'super_admin'
+        $rolesPermitidos = auth()->user()->isSuperAdmin()
             ? ['super_admin', 'admin', 'aprobador', 'gestor', 'usuario']
             : ['admin', 'aprobador', 'gestor', 'usuario']; // admin no puede crear super_admin
 
         $request->validate([
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|string|min:8|confirmed',
+            'password'      => 'required|string|min:8',
             'rol'           => 'required|in:' . implode(',', $rolesPermitidos),
-            'assigned_apps' => 'required|array|min:1',
-            'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);
-
-        $assignedApps = array_values(array_unique($request->input('assigned_apps', ['viajes'])));
 
         User::create([
             'name'          => $request->name,
             'email'         => $request->email,
             'password'      => Hash::make($request->password),
             'rol'           => $request->rol,
-            'assigned_app'  => $assignedApps[0] ?? null,
-            'assigned_apps' => $assignedApps,
+            'role'          => $request->rol,
+            'assigned_app'  => 'viajes',
+            'assigned_apps' => ['viajes'],
         ]);
 
         return redirect()->route('viajes.usuarios.index')->with('success', 'Usuario creado correctamente.');
@@ -72,11 +64,11 @@ class UserController extends Controller
         }
 
         // Admin no puede modificar a super_admin
-        if ($this->rolActual() === 'admin' && $user->rol === 'super_admin') {
+        if (!auth()->user()->isSuperAdmin() && $user->isSuperAdmin()) {
             return redirect()->route('viajes.usuarios.index')->with('error', 'No tienes permiso para modificar a un Super Administrador.');
         }
 
-        $rolesPermitidos = $this->rolActual() === 'super_admin'
+        $rolesPermitidos = auth()->user()->isSuperAdmin()
             ? ['super_admin', 'admin', 'aprobador', 'gestor', 'usuario']
             : ['admin', 'aprobador', 'gestor', 'usuario'];
 
@@ -84,17 +76,13 @@ class UserController extends Controller
             'name'          => 'required|string|max:255',
             'email'         => 'required|email|unique:users,email,' . $user->id,
             'rol'           => 'required|in:' . implode(',', $rolesPermitidos),
-            'assigned_apps' => 'required|array|min:1',
-            'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);
 
-        $assignedApps = array_values(array_unique($request->input('assigned_apps', ['viajes'])));
         $data = [
             'name'          => $request->name,
             'email'         => $request->email,
             'rol'           => $request->rol,
-            'assigned_app'  => $assignedApps[0] ?? null,
-            'assigned_apps' => $assignedApps,
+            'role'          => $request->rol,
         ];
 
         if ($request->filled('password')) {
@@ -114,7 +102,7 @@ class UserController extends Controller
         }
 
         // Admin no puede eliminar a super_admin
-        if ($this->rolActual() === 'admin' && $user->rol === 'super_admin') {
+        if (!auth()->user()->isSuperAdmin() && $user->isSuperAdmin()) {
             return redirect()->route('viajes.usuarios.index')->with('error', 'No tienes permiso para eliminar a un Super Administrador.');
         }
 

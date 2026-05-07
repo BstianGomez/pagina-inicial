@@ -9,12 +9,13 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=space-grotesk:400,500,600,700|dm-sans:400,500,600" rel="stylesheet" />
 
-    <link rel="stylesheet" href="/assets/oc/css/common.css">
+    <style>
+        @include('oc.partials.common_styles')
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @include('oc.partials.common_scripts')
     <style>
-
-        /* Especificos de esta vista */
+        /* Especificos de esta vista que no estan en common_styles */
         .sidebar.collapsed .nav-item:hover::after {
             content: attr(title);
             position: absolute;
@@ -32,237 +33,6 @@
             pointer-events: none;
         }
 
-        .content {
-            padding: 16px 10px 30px;
-        }
-
-        .container {
-            width: 100%;
-            margin: 24px 0 60px;
-            padding: 0;
-        }
-
-        .card {
-            background: var(--card);
-            border: 1px solid #e5e9f2;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(16, 24, 40, 0.10), 0 2px 8px rgba(16, 24, 40, 0.05);
-            overflow-x: hidden;
-            overflow-y: visible;
-            width: 100%;
-        }
-
-        .card[aria-label="Tabla de solicitudes"] {
-            width: 100%;
-        }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
-            padding: 22px 24px;
-            border-bottom: 1px solid rgba(227, 232, 240, 0.8);
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        }
-
-        .toolbar-title {
-            font-family: "Space Grotesk", "DM Sans", ui-sans-serif, system-ui, sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
-            letter-spacing: -0.3px;
-        }
-
-        .toolbar-subtitle {
-            font-size: 13px;
-            color: var(--muted);
-            margin-top: 4px;
-        }
-
-        .toolbar-actions {
-            align-items: center;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 11px 18px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .btn-secondary {
-            background: #eaf3ff;
-            color: #0b5fa5;
-            border-color: #cfe2ff;
-        }
-
-        .btn-outline {
-            background: #ffffff;
-            color: #0b5fa5;
-            border-color: #0b5fa5;
-        }
-
-        .btn-accent {
-            background: #0f7a3e;
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(15, 122, 62, 0.3);
-        }
-
-        .btn-accent:hover {
-            background: #0b5b2e;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(15, 122, 62, 0.4);
-        }
-
-        .filters {
-            display: grid;
-            grid-template-columns: 1.5fr repeat(2, minmax(150px, 1fr));
-            gap: 14px;
-            padding: 18px 24px 20px;
-            border-bottom: 1px solid rgba(227, 232, 240, 0.8);
-            background: #fcfdfe;
-        }
-
-        .filters label {
-            font-size: 12px;
-            color: var(--muted);
-            font-weight: 600;
-            display: block;
-            margin-bottom: 6px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .input, .select {
-            padding: 11px 13px;
-            border: 1.5px solid #d9dfe8;
-            border-radius: 9px;
-            background: white;
-            font-size: 14px;
-            color: #1f2937;
-            transition: all 150ms ease;
-            font-weight: 500;
-        }
-
-        .select {
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 35px;
-        }
-
-        .select option {
-            white-space: normal;
-            padding: 8px;
-        }
-
-        .input:focus, .select:focus {
-            outline: none;
-            border-color: var(--brand);
-            box-shadow: 0 0 0 3px rgba(15, 107, 182, 0.1);
-        }
-
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: visible;
-            scrollbar-width: thin;
-        }
-
-        table {
-            width: 100%;
-            
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-
-        thead th {
-            text-align: left;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #5b6473;
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f4f8 100%);
-            border-bottom: 2px solid #e3e8f0;
-            padding: 14px 16px;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            backdrop-filter: blur(3px);
-        }
-
-        tbody td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f0f3f8;
-            font-size: 13px;
-            color: #1f2937;
-            font-weight: 500;
-            white-space: normal;
-            vertical-align: middle;
-        }
-
-        tbody tr:nth-child(even) { background: #fcfdff; }
-        tbody td.compact { width: auto; }
-        tbody td.actions { width: 1%; text-align: center; white-space: nowrap; }
-        tbody tr:hover {
-            background: rgba(15, 107, 182, 0.04);
-            z-index: 10;
-            transition: background 120ms ease;
-        }
-
-        td {
-            vertical-align: middle !important;
-        }
-
-
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 12px;
-            font-size: 12px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #e8f1fb 0%, #f0f7ff 100%);
-            color: #0a4f86;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-        }
-
-        .chip-cliente { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); color: #5b21b6; }
-        .chip-interna { background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); color: #1d4ed8; }
-        .chip-negocio { background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); color: #166534; }
-
-        .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 13px;
-        }
-
-        .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--warning); }
-
         .status.ok { background: #dcfce7 !important; color: #15803d !important; }
         .status.ok .dot { background: #15803d !important; }
         .status.pending { background: #fef08a !important; color: #a16207 !important; }
@@ -274,17 +44,9 @@
         .status.enviada { background: #f3f4f6 !important; color: #4b5563 !important; }
         .status.enviada .dot { background: #4b5563 !important; }
 
-        .col-proveedor, .col-descripcion { max-width: 200px; }
-
-        .truncate-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            white-space: normal;
-            line-height: 1.35;
-            max-height: calc(1.35em * 2);
-        }
+        .chip-cliente { background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); color: #5b21b6; }
+        .chip-interna { background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%); color: #1d4ed8; }
+        .chip-negocio { background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); color: #166534; }
 
         .menu-trigger {
             background: #ffffff;
@@ -300,7 +62,6 @@
             color: #64748b;
             margin: 0 auto;
             outline: none !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .menu-trigger:hover {
@@ -308,7 +69,6 @@
             border-color: var(--brand);
             color: var(--brand);
             transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(15, 107, 182, 0.1);
         }
 
         .dropdown-menu {
@@ -320,562 +80,32 @@
             box-shadow: 0 12px 32px rgba(16, 24, 40, 0.20), 0 2px 8px rgba(16, 24, 40, 0.10);
             min-width: 180px;
             z-index: 999999;
-            overflow: visible;
         }
 
-        .dropdown-menu.show {
-            display: block;
-            animation: dropdownSlideIn 0.15s ease-out;
-        }
-
-        @keyframes dropdownSlideIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .dropdown-menu.show { display: block; animation: dropdownSlideIn 0.15s ease-out; }
+        @keyframes dropdownSlideIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
         .dropdown-item {
-            display: block;
-            width: 100%;
-            padding: 11px 16px;
-            border: none;
-            background: transparent;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-            color: #1f2937;
-            transition: all 150ms ease;
-            font-weight: 500;
+            display: block; width: 100%; padding: 11px 16px; border: none; background: transparent;
+            text-align: left; cursor: pointer; font-size: 14px; color: #1f2937; transition: all 150ms ease; font-weight: 500;
         }
-
         .dropdown-item:hover { background: #f7fbff; color: #0f6bb6; }
         .dropdown-item.primary { color: var(--brand); font-weight: 600; }
 
-        .menu-container { position: relative; z-index: 100; }
-        tbody tr:hover .menu-container { z-index: 1001; }
+        /* Modal Details */
+        #ocDetailModal .modal-container { max-width: 1040px; border-radius: 24px; }
+        #ocDetailModal .modal-body { max-height: calc(100vh - 200px); padding: 24px; background: #f8fafc; }
+        
+        .rendicion-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; }
+        .rendicion-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        .voucher-item { border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+        .voucher-head { padding: 16px; display: flex; justify-content: space-between; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .voucher-amount .money { font-size: 24px; font-weight: 700; color: #0f172a; }
 
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 18px 16px;
-            color: var(--muted);
-            font-size: 13px;
+        @media (max-width: 1024px) {
+            .rendicion-layout { grid-template-columns: 1fr; }
         }
-
-        .pagination-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            padding: 12px 18px 18px;
-            border-top: 1px solid #eef2f7;
-            background: #fcfdff;
-        }
-
-        .pagination-info { font-size: 13px; color: var(--muted); font-weight: 500; }
-
-        .pagination { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-        .page-link {
-            min-width: 36px;
-            height: 36px;
-            padding: 0 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #dbe5f1;
-            border-radius: 9px;
-            background: #fff;
-            color: #1f2937;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 140ms ease;
-        }
-
-        .page-link:hover { border-color: #0f6bb6; color: #0f6bb6; background: #f4f9ff; }
-        .page-link.active { background: #0f6bb6; color: #fff; border-color: #0f6bb6; }
-        .page-link.disabled { opacity: 0.45; pointer-events: none; }
-
-        .empty { display: none; padding: 24px 18px 30px; color: var(--muted); text-align: center; }
-
-        .alert {
-            width: 100%;
-            margin: 0 0 20px 0;
-            padding: 14px 20px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 900px) {
-            .filters { grid-template-columns: 1fr; }
-            .toolbar { align-items: flex-start; }
-            tbody td { max-width: 150px; }
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(9px);
-            z-index: 9999; display: none; align-items: center; justify-content: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-        .modal-overlay.show { display: flex; }
-        .modal-container {
-            background: #ffffff; border-radius: 20px; width: 100%; max-width: 600px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1px solid rgba(0,0,0,0.05);
-        }
-        .modal-header {
-            padding: 24px 32px; border-bottom: 1px solid #f1f5f9; display: flex;
-            align-items: center; justify-content: space-between; background: #ffffff;
-        }
-        .modal-title { font-size: 20px; font-weight: 700; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 8px;}
-        .modal-close {
-            background: #f8fafc; border: none; font-size: 24px; cursor: pointer; color: #64748b;
-            display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
-            border-radius: 50%; transition: all 0.2s;
-        }
-        .modal-close:hover { background: #e2e8f0; color: #0f172a; transform: rotate(90deg); }
-        .modal-body { padding: 32px; max-height: 70vh; overflow-y: auto; background: #fcfcfd; }
-        .modal-footer {
-            padding: 20px 32px; background: #ffffff; border-top: 1px solid #f1f5f9;
-            display: flex; justify-content: flex-end; gap: 12px;
-        }
-        .btn-modern { padding: 10px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-close { background: #f1f5f9; color: #475569; }
-        .btn-close:hover { background: #e2e8f0; color: #0f172a; }
-        .btn-download { background: #0f6bb6; color: white; box-shadow: 0 4px 6px rgba(15, 107, 182, 0.2); text-decoration: none;}
-        .btn-download:hover { background: #0d5a9a; box-shadow: 0 6px 8px rgba(15, 107, 182, 0.3); transform: translateY(-1px); }
-
-        #ocDetailModal .modal-container {
-            max-width: 1040px;
-            border-radius: 24px;
-            border: 1px solid #d9e2ef;
-            overflow: hidden;
-        }
-
-        #ocDetailModal .modal-header {
-            padding: 18px 24px;
-            background: linear-gradient(135deg, #f7f9fd 0%, #eef4ff 100%);
-        }
-
-        .rendicion-header {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .rendicion-header-top {
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            font-weight: 700;
-            color: #4f5d73;
-            text-transform: uppercase;
-        }
-
-        .rendicion-title {
-            margin: 0;
-            font-size: 34px;
-            line-height: 1;
-            letter-spacing: -0.02em;
-            color: #0f172a;
-            font-weight: 700;
-        }
-
-        .rendicion-layout {
-            display: grid;
-            grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
-            gap: 16px;
-        }
-
-        .rendicion-main,
-        .rendicion-aside {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            min-width: 0;
-        }
-
-        .rendicion-card {
-            background: #ffffff;
-            border: 1px solid #dbe5f2;
-            border-radius: 18px;
-            box-shadow: 0 14px 22px rgba(17, 24, 39, 0.06);
-            padding: 16px;
-        }
-
-        .rendicion-owner {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .owner-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .owner-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(160deg, #d3dae6 0%, #b8c6db 100%);
-            color: #213047;
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .owner-name {
-            font-size: 28px;
-            line-height: 1;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-            color: #0f172a;
-        }
-
-        .owner-meta {
-            font-size: 14px;
-            color: #5e6c82;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .status-chip {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 999px;
-            background: #f9edd1;
-            color: #856503;
-            border: 1px solid #edd49f;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            text-transform: uppercase;
-            padding: 5px 10px;
-        }
-
-        .action-outline {
-            border: 1px solid #c8d4e4;
-            color: #1f2d45;
-            background: #fff;
-            border-radius: 12px;
-            height: 40px;
-            padding: 0 16px;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            font-size: 12px;
-            text-transform: uppercase;
-            cursor: default;
-        }
-
-        .section-title {
-            margin: 0 0 12px;
-            font-size: 13px;
-            font-weight: 800;
-            color: #0f172a;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-
-        .voucher-item {
-            border: 1px solid #dbe6f6;
-            border-radius: 16px;
-            overflow: hidden;
-            background: #f9fbff;
-        }
-
-        .voucher-head {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 14px;
-            border-bottom: 1px solid #dbe6f6;
-        }
-
-        .voucher-main {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            min-width: 0;
-        }
-
-        .voucher-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            background: #e7eef8;
-            color: #3368a0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .voucher-name {
-            font-size: 28px;
-            line-height: 1;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 4px;
-            letter-spacing: -0.02em;
-            word-break: break-word;
-        }
-
-        .voucher-sub {
-            font-size: 14px;
-            color: #4f5d73;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .voucher-tag {
-            background: #d9e8f9;
-            border: 1px solid #b9d3f1;
-            color: #235e95;
-            border-radius: 8px;
-            padding: 3px 8px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-        }
-
-        .voucher-amount {
-            text-align: right;
-            color: #0f172a;
-            white-space: nowrap;
-        }
-
-        .voucher-amount .date {
-            font-size: 13px;
-            color: #5e6c82;
-        }
-
-        .voucher-amount .money {
-            margin-top: 4px;
-            display: block;
-            font-size: 35px;
-            line-height: 1;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-        }
-
-        .voucher-preview {
-            padding: 14px;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .desc-box,
-        .obs-box {
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 14px;
-            line-height: 1.5;
-            border: 1px solid transparent;
-        }
-
-        .desc-box {
-            background: #f5f7fb;
-            border-color: #dfe7f3;
-            color: #334155;
-        }
-
-        .obs-box {
-            background: #fcf7ea;
-            border-color: #f2dfac;
-            color: #8a6d1d;
-            margin-top: 10px;
-        }
-
-        .total-box {
-            margin-top: 12px;
-            border: 1px solid #dbe5f2;
-            border-radius: 14px;
-            background: linear-gradient(180deg, #f0f4fb 0%, #e7edf7 100%);
-            padding: 14px;
-            text-align: center;
-        }
-
-        .total-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1f2d45;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .total-sub {
-            margin-top: 5px;
-            color: #4f5d73;
-            font-size: 14px;
-        }
-
-        .side-card-title {
-            margin: 0 0 12px;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: #0f172a;
-        }
-
-        .ghost-action {
-            width: 100%;
-            height: 40px;
-            border-radius: 10px;
-            border: 1px solid #c8d4e4;
-            background: #fff;
-            color: #1f2d45;
-            font-weight: 600;
-            font-size: 14px;
-            margin-top: 8px;
-            cursor: default;
-        }
-
-        .ghost-action.primary {
-            border-color: #b69950;
-            color: #8a6d1d;
-            background: #f9f2df;
-        }
-
-        .transfer-name {
-            font-size: 28px;
-            line-height: 1;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #0f172a;
-            margin-bottom: 12px;
-            word-break: break-word;
-        }
-
-        .transfer-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-        }
-
-        .transfer-item {
-            display: grid;
-            grid-template-columns: 76px minmax(0, 1fr);
-            gap: 8px;
-            font-size: 14px;
-            color: #334155;
-            word-break: break-word;
-        }
-
-        .transfer-item strong {
-            color: #0f172a;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.04em;
-        }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
-
-        .meta-pill {
-            border: 1px solid #dbe5f2;
-            border-radius: 12px;
-            padding: 10px 12px;
-            background: #f8fbff;
-        }
-
-        .meta-pill .k {
-            font-size: 11px;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            display: block;
-        }
-
-        .meta-pill .v {
-            margin-top: 4px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #1f2937;
-            word-break: break-word;
-        }
-
-        #ocDetailModal .modal-body {
-            max-height: calc(100vh - 220px);
-            padding: 16px;
-            background: linear-gradient(170deg, #f2f6fd 0%, #e6edf8 100%);
-        }
-
-        .detail-cta {
-            min-width: 200px;
-            justify-content: center;
-            border-radius: 10px;
-            font-weight: 700;
-        }
-
-        .detail-cta.muted {
-            background: #e2e8f0;
-            color: #64748b;
-            box-shadow: none;
-            cursor: default;
-        }
-
-        @media (max-width: 980px) {
-            .rendicion-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .voucher-preview {
-                grid-template-columns: 1fr;
-            }
-
-            .voucher-amount .money,
-            .owner-name,
-            .voucher-name,
-            .transfer-name,
-            .rendicion-title {
-                font-size: 24px;
-            }
-
-            #ocDetailModal .modal-header {
-                padding: 14px 16px;
-            }
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .swal2-container { z-index: 10000 !important; }
     </style>
 
 </head>
@@ -901,34 +131,22 @@
 
             <main class="content">
                 <section class="card" aria-label="Tabla de solicitudes">
-                <div class="toolbar">
-                    <div>
-                        <div class="toolbar-title" style="display:flex; align-items:center; gap:12px;">
-                            <div style="background: var(--bg-accent); padding: 8px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand);">
-                                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                                </svg>
-                            </div>
-                            <span style="font-size: 22px; font-weight: 800; color: #1e293b; letter-spacing: -0.02em;">Solicitudes de OC</span>
+                    <div class="card-header">
+                        <div>
+                            <h1 class="card-title">Solicitudes de OC</h1>
+                            <p class="card-subtitle">Gestión y seguimiento de órdenes de compra en tiempo real</p>
                         </div>
-                        <div class="toolbar-subtitle" style="margin-top: 4px; margin-left: 50px;">Gestión y seguimiento de órdenes de compra en tiempo real</div>
+                        <div class="toolbar-actions">
+                            <a href="{{ route('oc.export') }}" class="btn btn-ghost" style="padding: 10px 20px; font-weight: 700;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Exportar Datos
+                            </a>
+                        </div>
                     </div>
-                    <div class="toolbar-actions">
-                        <a href="{{ route('oc.export') }}" class="btn btn-ghost" style="padding: 10px 20px; font-weight: 700;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Exportar Datos
-                        </a>
-                    </div>
-                </div>
 
                 <div class="filters" style="background: #fcfdfe; border-bottom: 1px solid #edf2f7; padding: 16px 20px; display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;">
                     <div class="field" style="flex: 2; min-width: 300px;">

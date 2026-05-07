@@ -32,8 +32,6 @@ class UserManagementController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6'],
             'role' => ['required', 'in:super_admin,admin,gestor,cliente'],
-            'assigned_apps' => ['required', 'array', 'min:1'],
-            'assigned_apps.*' => ['required', Rule::in(['oc', 'viajes', 'rendicion'])],
         ]);
 
         if ($currentUser->hasRole('gestor')) {
@@ -55,7 +53,7 @@ class UserManagementController extends Controller
             // permitido
         }
 
-        $assignedApps = array_values(array_unique($data['assigned_apps']));
+        $assignedApps = ['oc'];
 
         User::create([
             'name' => $data['name'],
@@ -125,8 +123,6 @@ class UserManagementController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'password' => ['nullable', 'string', 'min:6'],
             'role' => ['required', 'in:super_admin,admin,gestor,cliente'],
-            'assigned_apps' => ['required', 'array', 'min:1'],
-            'assigned_apps.*' => ['required', Rule::in(['oc', 'viajes', 'rendicion'])],
         ]);
 
         if ($data['role'] === 'super_admin' && ! $currentUser->isSuperAdmin()) {
@@ -148,7 +144,7 @@ class UserManagementController extends Controller
             $payload['password'] = Hash::make($data['password']);
         }
 
-        $assignedApps = array_values(array_unique($data['assigned_apps']));
+        $assignedApps = $user->assigned_apps ?: ['oc'];
         $payload['assigned_apps'] = $assignedApps;
         $payload['assigned_app'] = $assignedApps[0] ?? null;
 

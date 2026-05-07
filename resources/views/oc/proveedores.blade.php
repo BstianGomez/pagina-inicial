@@ -31,8 +31,7 @@
         }
 
         .content {
-            flex: 1;
-            padding: 24px 20px 48px;
+            padding: 24px 20px 30px;
         }
 
         .container {
@@ -1003,18 +1002,18 @@
 
                     <!-- Content Wrapper -->
                     <section class="card">
-                        <div class="toolbar">
+                        <div class="card-header">
                             <div>
-                                <div class="toolbar-title" style="display:flex; align-items:center; gap:8px;">
+                                <div class="card-title" style="display:flex; align-items:center; gap:8px;">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand); margin-right: 4px;">
                                         <rect x="1" y="3" width="15" height="13"></rect>
                                         <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
                                         <circle cx="5.5" cy="18.5" r="2.5"></circle>
                                         <circle cx="18.5" cy="18.5" r="2.5"></circle>
                                     </svg>
-                                    <span style="font-size: 20px; color: #0f172a !important;">Gestor de Aprobaciones</span>
+                                    <span style="font-size: 20px; color: #0f172a !important;">Gestor de Proveedores</span>
                                 </div>
-                                <div class="toolbar-subtitle">Listado de Proveedores registrados en el sistema.</div>
+                                <div class="card-subtitle">Listado de Proveedores registrados en el sistema.</div>
                             </div>
                             <div class="toolbar-actions" style="display: flex; align-items: center; gap: 16px;">
                                 <div class="search-box" style="margin: 0;">

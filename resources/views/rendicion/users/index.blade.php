@@ -8,7 +8,7 @@
     @endif
 
     <div class="mb-6 flex justify-end">
-        <button onclick="openModal()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-sofofa-blue hover:bg-sofofa-blue-dark px-4 py-2.5 text-xs font-black text-white transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest whitespace-nowrap">
+        <button onclick="openModal()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-4 py-2.5 text-xs font-black text-white transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 active:scale-95 uppercase tracking-widest whitespace-nowrap">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
             Nuevo Usuario
         </button>
@@ -309,6 +309,12 @@
                 @csrf
                 <input type="hidden" name="_method" id="form-method" value="POST">
                 <input type="hidden" name="editing_user_id" id="editing-user-id" value="{{ old('editing_user_id') }}">
+
+                @if($errors->any())
+                    <div style="background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; border: 1px solid #fee2e2;">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
                 
                 <div class="user-field">
                     <label class="user-label" for="user-name">Nombre Completo</label>
@@ -319,6 +325,8 @@
                     <label class="user-label" for="user-email">Correo Electronico</label>
                     <input type="email" name="email" id="user-email" value="{{ old('email') }}" required class="user-input" placeholder="juan@sofofa.cl">
                 </div>
+                
+
 
                 <div id="password-section" class="user-field">
                     <label class="user-label" for="user-password">Contrasena</label>
@@ -335,23 +343,7 @@
                     </select>
                 </div>
 
-                <div class="user-field">
-                    <label class="user-label">Páginas asignadas</label>
-                    <div class="grid gap-3 sm:grid-cols-3">
-                        <label class="user-checkbox">
-                            <input type="checkbox" name="assigned_apps[]" value="oc" id="user-app-oc" {{ is_array(old('assigned_apps')) && in_array('oc', old('assigned_apps')) ? 'checked' : '' }}>
-                            OC
-                        </label>
-                        <label class="user-checkbox">
-                            <input type="checkbox" name="assigned_apps[]" value="viajes" id="user-app-viajes" {{ is_array(old('assigned_apps')) && in_array('viajes', old('assigned_apps')) ? 'checked' : '' }}>
-                            Viajes
-                        </label>
-                        <label class="user-checkbox">
-                            <input type="checkbox" name="assigned_apps[]" value="rendicion" id="user-app-rendicion" {{ is_array(old('assigned_apps')) && in_array('rendicion', old('assigned_apps')) ? 'checked' : '' }}>
-                            Rendición
-                        </label>
-                    </div>
-                </div>
+
 
                 <div class="user-field">
                     <label class="user-label" for="user-has-fixed-fund">Tipo de Fondo</label>
@@ -419,9 +411,7 @@
             document.getElementById('user-password').required = true;
             document.getElementById('password-section').classList.remove('hidden');
             document.getElementById('user-role').selectedIndex = 0;
-            document.getElementById('user-app-oc').checked = false;
-            document.getElementById('user-app-viajes').checked = false;
-            document.getElementById('user-app-rendicion').checked = true;
+
             document.getElementById('user-has-fixed-fund').value = '0';
             document.getElementById('user-fixed-fund-amount').value = '';
             toggleFixedFundAmount();
@@ -450,9 +440,7 @@
                 ? user.assigned_apps
                 : (user.assigned_app ? [user.assigned_app] : []);
 
-            document.getElementById('user-app-oc').checked = assignedApps.includes('oc');
-            document.getElementById('user-app-viajes').checked = assignedApps.includes('viajes');
-            document.getElementById('user-app-rendicion').checked = assignedApps.includes('rendicion');
+
 
             document.getElementById('user-has-fixed-fund').value = user.has_fixed_fund ? '1' : '0';
             document.getElementById('user-fixed-fund-amount').value = user.fixed_fund_amount

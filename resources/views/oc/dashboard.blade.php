@@ -23,22 +23,6 @@
             gap: 18px;
         }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 18px 12px;
-            border-bottom: 1px solid #edf2f7;
-            background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
-        }
-
-        .card-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0f172a;
-            line-height: 1.2;
-            text-transform: none;
-        }
 
         /* Gmail Modal Rules */
         .gmail-modal {
@@ -496,8 +480,8 @@
             <section class="card">
                 <div class="card-header">
                     <div>
-                        <div class="card-title" style="font-size: 20px;">Dashboard de Indicadores</div>
-                        <div style="font-size: 13px; color: var(--muted);">Análisis y gráficos de órdenes de compra</div>
+                        <h2 class="card-title">Dashboard de Indicadores</h2>
+                        <p class="card-subtitle">Análisis y gráficos de órdenes de compra</p>
                     </div>
                 </div>
                 <form class="filters" method="GET" action="{{ route('oc.dashboard') }}">
@@ -585,7 +569,7 @@
             <div class="charts-grid">
                 <section class="card">
                     <div class="card-header">
-                        <div class="card-title">Monto total por CECO</div>
+                        <h2 class="card-title">Monto total por CECO</h2>
                     </div>
                     <div class="chart-canvas">
                         <canvas id="chartByCeco" width="550" height="360"></canvas>
@@ -594,7 +578,7 @@
 
                 <section class="card">
                     <div class="card-header">
-                        <div class="card-title">Gasto mensual por CECO</div>
+                        <h2 class="card-title">Gasto mensual por CECO</h2>
                     </div>
                     <div class="chart-canvas">
                         <canvas id="chartByMonth" width="550" height="360"></canvas>
@@ -604,7 +588,7 @@
 
             <section class="card" id="table-solicitudes" style="scroll-margin-top: 24px;">
                 <div class="card-header">
-                    <div class="card-title">Solicitudes registradas</div>
+                    <h2 class="card-title">Solicitudes registradas</h2>
                 </div>
                 <div class="table-wrap">
                     <table>

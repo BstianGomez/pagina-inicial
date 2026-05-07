@@ -18,7 +18,7 @@
         </button>
         <div class="brand">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 6px;">
                     <img src="{{ asset('img/logo.png') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
                 <div style="line-height: 1.2;">

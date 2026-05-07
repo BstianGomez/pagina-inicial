@@ -57,15 +57,15 @@
         <div class="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#f8fafc] lg:bg-white">
             <div class="w-full max-w-md bg-white p-8 lg:p-0 rounded-[2.5rem] shadow-xl shadow-slate-200/50 lg:shadow-none lg:rounded-none">
                 <!-- Logo -->
-                <div class="flex justify-center mb-6 lg:mb-8">
-                    <div class="p-4 bg-white rounded-[2rem] shadow-2xl shadow-blue-500/10 border border-slate-50">
-                        <x-application-logo class="w-20 h-20 fill-current text-blue-600 drop-shadow-sm" />
+                <div class="flex justify-center mb-8">
+                    <div class="p-5 bg-white rounded-[1.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center justify-center" style="width: 200px; height: 100px;">
+                        <x-application-logo />
                     </div>
                 </div>
 
-                <div class="text-center mb-6">
-                    <h1 class="text-4xl font-black text-slate-900 mb-3 tracking-tight">Bienvenido</h1>
-                    <p class="text-slate-500 font-medium">Ingresa tus credenciales para continuar</p>
+                <div class="text-center mb-10">
+                    <h1 class="text-5xl font-black text-slate-900 mb-3 tracking-tight">Bienvenido</h1>
+                    <p class="text-slate-500 font-bold text-lg">Ingresa tus credenciales para continuar</p>
                 </div>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />

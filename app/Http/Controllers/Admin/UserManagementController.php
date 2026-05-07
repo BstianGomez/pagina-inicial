@@ -11,16 +11,28 @@ use Spatie\Permission\Models\Role;
 
 class UserManagementController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->isSuperAdmin()) {
             abort(403);
         }
 
-        $users = User::with('roles')->orderBy('name')->paginate(20);
+        $query = User::with('roles')->orderBy('name');
+
+        // Buscador por Correo
+        if ($request->filled('search_email')) {
+            $query->where('email', 'like', '%' . $request->search_email . '%');
+        }
+
+        // Filtro por Sistemas
+        if ($request->filled('filter_app')) {
+            $query->whereJsonContains('assigned_apps', $request->filter_app);
+        }
+
+        $users = $query->paginate(20)->withQueryString();
         
-        // Roles disponibles para asignar
-        $roles = Role::all();
+        // Roles disponibles para asignar globalmente
+        $roles = Role::whereIn('name', ['Superadmin', 'Admin', 'Usuario'])->get();
 
         return view('admin.users.index', compact('users', 'roles'));
     }
@@ -31,11 +43,13 @@ class UserManagementController extends Controller
             abort(403);
         }
 
+        $allowedRoles = ['Superadmin', 'Admin', 'Usuario'];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8',
-            'role_name' => 'required|exists:roles,name',
+            'role_name' => ['required', Rule::in($allowedRoles)],
             'assigned_apps' => 'required|array|min:1',
             'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);
@@ -63,10 +77,12 @@ class UserManagementController extends Controller
             abort(403);
         }
 
+        $allowedRoles = ['Superadmin', 'Admin', 'Usuario'];
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role_name' => 'required|exists:roles,name',
+            'role_name' => ['required', Rule::in($allowedRoles)],
             'assigned_apps' => 'required|array|min:1',
             'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);

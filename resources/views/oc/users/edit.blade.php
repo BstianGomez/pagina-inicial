@@ -179,6 +179,7 @@
                     <label class="label" for="name">Nombre</label>
                     <input class="input" id="name" name="name" type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\'-]+" title="El nombre no puede contener números" value="{{ old('name', $user->name) }}" required />
                 </div>
+
                 <div class="field">
                     <label class="label" for="email">Correo</label>
                     <input class="input" id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required />
@@ -228,14 +229,6 @@
                             <p style="font-size: 12px; margin-top: 4px;">No puedes cambiar el rol de este usuario.</p>
                         </div>
                     @endif
-                </div>
-                <div class="field">
-                    <label class="label">Páginas asignadas</label>
-                    <div class="checkbox-group" style="display:flex; gap:12px; flex-wrap:wrap;">
-                        <label><input type="checkbox" name="assigned_apps[]" value="oc" {{ in_array('oc', $assignedApps) ? 'checked' : '' }}> OC</label>
-                        <label><input type="checkbox" name="assigned_apps[]" value="viajes" {{ in_array('viajes', $assignedApps) ? 'checked' : '' }}> Viajes</label>
-                        <label><input type="checkbox" name="assigned_apps[]" value="rendicion" {{ in_array('rendicion', $assignedApps) ? 'checked' : '' }}> Rendición</label>
-                    </div>
                 </div>
                 <div class="actions">
                     <a href="{{ route('oc.users.index') }}" class="btn btn-ghost">Cancelar</a>

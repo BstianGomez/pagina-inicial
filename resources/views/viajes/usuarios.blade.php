@@ -70,8 +70,8 @@
                             'usuario'     => ['bg' => '#faf5ff', 'color' => '#7e22ce', 'label' => 'Usuario'],
                         ];
                         $rc = $rolColors[$user->rol ?? 'usuario'] ?? ['bg' => '#f1f5f9', 'color' => '#475569', 'label' => $user->rol ?? '—'];
-                        $esProtegido = $user->rol === 'super_admin' && (Auth::user()->rol ?? '') === 'admin';
-                    @endphp
+                        $esProtegido = $user->isSuperAdmin() && !Auth::user()->isSuperAdmin();
+@endphp
                     <span style="background: {{ $rc['bg'] }}; color: {{ $rc['color'] }}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
                         {{ $rc['label'] }}
                     </span>
@@ -124,11 +124,18 @@
         <h3 style="font-size:20px;font-weight:700;margin:0 0 24px;">Nuevo Usuario</h3>
         <form action="{{ route('viajes.usuarios.store') }}" method="POST">
             @csrf
+            
+            @if($errors->any())
+                <div style="background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; border: 1px solid #fee2e2;">
+                    {{ $errors->first() }}
+                </div>
+            @endif
             <div style="display:grid;gap:16px;">
                 <div class="form-field">
                     <label class="form-label">Nombre completo</label>
                     <input type="text" name="name" class="form-control" placeholder="Ej: Juan Pérez" required>
                 </div>
+
                 <div class="form-field">
                     <label class="form-label">Correo electrónico</label>
                     <input type="email" name="email" class="form-control" placeholder="usuario@empresa.cl" required>
@@ -137,7 +144,7 @@
                     <label class="form-label">Rol</label>
                     <select name="rol" class="form-select" required>
                         <option value="">Selecciona un rol...</option>
-                        @if(Auth::check() && Auth::user()->rol === 'super_admin')
+                        @if(Auth::check() && Auth::user()->isSuperAdmin())
                         <option value="super_admin">Super Administrador</option>
                         @endif
                         <option value="admin">Administrador</option>
@@ -149,18 +156,6 @@
                 <div class="form-field">
                     <label class="form-label">Contraseña</label>
                     <input type="password" name="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
-                </div>
-                <div class="form-field">
-                    <label class="form-label">Confirmar contraseña</label>
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Repite la contraseña" required>
-                </div>
-                <div class="form-field">
-                    <label class="form-label">Páginas asignadas</label>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="oc" {{ is_array(old('assigned_apps')) && in_array('oc', old('assigned_apps')) ? 'checked' : '' }}> OC</label>
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="viajes" {{ is_array(old('assigned_apps', ['viajes'])) && in_array('viajes', old('assigned_apps', ['viajes'])) ? 'checked' : '' }}> Viajes</label>
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="rendicion" {{ is_array(old('assigned_apps')) && in_array('rendicion', old('assigned_apps')) ? 'checked' : '' }}> Rendición</label>
-                    </div>
                 </div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:28px;">
@@ -188,6 +183,7 @@
                     <label class="form-label">Nombre completo</label>
                     <input type="text" id="editNombre" name="name" class="form-control" required>
                 </div>
+
                 <div class="form-field">
                     <label class="form-label">Correo electrónico</label>
                     <input type="email" id="editEmail" name="email" class="form-control" required>
@@ -195,7 +191,7 @@
                 <div class="form-field">
                     <label class="form-label">Rol</label>
                     <select id="editRol" name="rol" class="form-select" required>
-                        @if(Auth::check() && Auth::user()->rol === 'super_admin')
+                        @if(Auth::check() && Auth::user()->isSuperAdmin())
                         <option value="super_admin">Super Administrador</option>
                         @endif
                         <option value="admin">Administrador</option>
@@ -211,14 +207,6 @@
                 <div class="form-field">
                     <label class="form-label">Confirmar nueva contraseña</label>
                     <input type="password" name="password_confirmation" class="form-control">
-                </div>
-                <div class="form-field">
-                    <label class="form-label">Páginas asignadas</label>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="oc" {{ is_array(old('assigned_apps')) && in_array('oc', old('assigned_apps')) ? 'checked' : '' }}> OC</label>
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="viajes" {{ is_array(old('assigned_apps')) && in_array('viajes', old('assigned_apps')) ? 'checked' : '' }}> Viajes</label>
-                        <label style="display:inline-flex;align-items:center;gap:6px;font-size:14px;"><input type="checkbox" name="assigned_apps[]" value="rendicion" {{ is_array(old('assigned_apps')) && in_array('rendicion', old('assigned_apps')) ? 'checked' : '' }}> Rendición</label>
-                    </div>
                 </div>
             </div>
             <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:28px;">
@@ -238,9 +226,7 @@ function abrirEditar(id, nombre, email, rol, assignedApps) {
     document.getElementById('editEmail').value = email;
     document.getElementById('editRol').value = rol;
     document.getElementById('formEditar').action = '{{ url('viajes/usuarios') }}/' + id;
-    document.querySelectorAll('#formEditar input[name="assigned_apps[]"]').forEach(input => {
-        input.checked = Array.isArray(assignedApps) && assignedApps.includes(input.value);
-    });
+
     document.getElementById('modalEditar').style.display = 'flex';
 }
 // Cerrar modal al hacer clic en el fondo
@@ -249,6 +235,12 @@ function abrirEditar(id, nombre, email, rol, assignedApps) {
         if (e.target === this) this.style.display = 'none';
     });
 });
+    // Reabrir modal si hay errores
+    @if($errors->any())
+    window.onload = function() {
+        document.getElementById('modalCrear').style.display = 'flex';
+    };
+    @endif
 </script>
 
 @endsection

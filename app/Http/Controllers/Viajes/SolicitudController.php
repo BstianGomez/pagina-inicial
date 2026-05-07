@@ -17,7 +17,7 @@ class SolicitudController extends Controller
         $query = Solicitud::with(['solicitante', 'gestion', 'archivos', 'aprobador']);
 
         // Si es un rol privilegiado, ve todo. Si no, solo lo suyo.
-        if (!in_array($rol, ['admin', 'super_admin', 'aprobador', 'gestor'])) {
+        if (!$user->isAprobador() && !$user->isGestor()) {
             $query->where('user_id', $user->id);
         }
 
@@ -142,8 +142,7 @@ class SolicitudController extends Controller
 
     private function autorizarAprobador(): void
     {
-        $rol = Auth::user()->rol ?? '';
-        if (!in_array($rol, ['aprobador', 'admin', 'super_admin'])) {
+        if (!Auth::user()->isAprobador()) {
             abort(403, 'Sin permiso para acceder a este panel de aprobación.');
         }
     }

@@ -1,18 +1,13 @@
 @php
     $pendingOCsCount = \Illuminate\Support\Facades\DB::table('oc_solicitudes')->where('estado', 'Solicitada')->count();
     $user = auth()->user();
-    $isGestor = $user->hasAnyRole(['super_admin', 'admin', 'gestor']);
+    $isGestor = $user->isGestor();
+    $isAdmin = $user->isAdmin();
 @endphp
 
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="brand-badge">
-            <img src="/img/logo.png" alt="Logo">
-        </div>
-        <div class="brand-text">
-            <span class="brand-title">Fundación SOFOFA</span>
-            <span class="brand-subtitle">Capital Humano</span>
-        </div>
+    <div class="sidebar-header" style="padding: 20px;">
+        <x-application-logo size="sm" />
         <button class="mobile-close-btn" onclick="toggleMobileSidebar()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -71,7 +66,7 @@
             </a>
         @endif
 
-        @if($user->isSuperAdmin() || $user->isAdmin())
+        @if($isAdmin)
             <a href="{{ route('oc.gestor') }}" class="nav-item {{ request()->routeIs('oc.gestor') ? 'active' : '' }}" title="Gestión y Facturación">
                 <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

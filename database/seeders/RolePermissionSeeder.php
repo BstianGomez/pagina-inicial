@@ -37,12 +37,12 @@ class RolePermissionSeeder extends Seeder
 
         $superadmin = Role::firstOrCreate(['name' => 'Superadmin']);
         $admin = Role::firstOrCreate(['name' => 'Admin']);
-        $solicitante = Role::firstOrCreate(['name' => 'Solicitante']);
-        $aprobador = Role::firstOrCreate(['name' => 'Gestor']);
-        $gestor = Role::firstOrCreate(['name' => 'Aprobador']);
+        $usuario = Role::firstOrCreate(['name' => 'Usuario']);
 
+        // Superadmin gets everything
         $superadmin->syncPermissions($permissions);
 
+        // Admin gets management and approval capabilities
         $admin->syncPermissions([
             'users.view',
             'users.create',
@@ -50,25 +50,20 @@ class RolePermissionSeeder extends Seeder
             'catalog.manage',
             'reports.create',
             'reports.update_own',
-        ]);
-
-        $solicitante->syncPermissions([
-            'reports.create',
-            'reports.update_own',
-            'reports.delete_own',
-        ]);
-
-        $aprobador->syncPermissions([
             'reports.approve_manager',
             'reports.reject_manager',
             'reports.observe_manager',
-        ]);
-
-        $gestor->syncPermissions([
             'reports.approve_reviewer',
             'reports.reject_reviewer',
             'reports.observe_reviewer',
             'reports.register_payment',
+        ]);
+
+        // Usuario gets basic self-service permissions
+        $usuario->syncPermissions([
+            'reports.create',
+            'reports.update_own',
+            'reports.delete_own',
         ]);
     }
 }

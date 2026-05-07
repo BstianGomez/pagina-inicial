@@ -130,7 +130,7 @@
                         <span>Portal OC</span>
                     </div>
                     <div class="topbar-center">
-                        <div style="background: rgba(255,255,255,0.1); padding: 6px 20px; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 8px 24px; border-radius: 50px; font-weight: 600; font-size: 13px;">
                             MODO EDICIÓN
                         </div>
                     </div>
@@ -152,16 +152,16 @@
 
             <main class="content" style="position: relative; z-index: 2; padding-top: 20px;">
                 <div class="edit-container">
-                    <div class="header-custom" style="margin-left: 0; margin-right: 0; margin-top: 0;">
-                        <div class="header-content">
-                            <h1>Editar Solicitud</h1>
-                            <p>Modifica los detalles de tu solicitud para reenviarla a revisión.</p>
-                        </div>
-                    </div>
-                    
                     <form class="card" method="POST" action="{{ route('oc.solicitudes.actualizar', $solicitud->id) }}">
-                        @csrf
-                        <div class="card-inner">
+                        <div class="card-header">
+                            <div>
+                                <h1 class="card-title">Editar Solicitud</h1>
+                                <p class="card-subtitle">Modifica los detalles de tu solicitud para reenviarla a revisión.</p>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            @csrf
                             <div class="section-header">
                                 <div>
                                     <h2 style="font-size: 20px; font-weight: 700; color: var(--ink); margin: 0;">Solicitud #{{ $solicitud->id }}</h2>
@@ -318,6 +318,7 @@
                             </div>
                         </div>
                     </form>
+
                 </div>
             </main>
         </div>

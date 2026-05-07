@@ -124,7 +124,8 @@ class GestionController extends Controller
         $rol  = $user->rol ?? '';
 
         $puedeDescargar = $sol->user_id === $user->id
-            || in_array($rol, ['gestor', 'admin', 'super_admin']);
+            || $user->isGestor()
+            || $user->isAdmin();
 
         if (!$puedeDescargar) {
             abort(403);
@@ -135,8 +136,7 @@ class GestionController extends Controller
 
     private function autorizarGestor(): void
     {
-        $rol = Auth::user()->rol ?? '';
-        if (!in_array($rol, ['gestor', 'admin', 'super_admin'])) {
+        if (!Auth::user()->isGestor()) {
             abort(403, 'Sin permiso para gestionar solicitudes.');
         }
     }

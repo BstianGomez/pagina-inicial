@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'rut',
         'password',
         'role',
         'rol',
@@ -104,7 +105,7 @@ class User extends Authenticatable
         return $aliases[$key] ?? strtolower($role);
     }
 
-    public function hasRole($role)
+    public function hasLegacyRole($role)
     {
         $normalizedCheck  = $this->normalizeRole($role);
         $normalizedStored = $this->normalizeRole($this->role ?? '');
@@ -114,33 +115,61 @@ class User extends Authenticatable
             || $normalizedStoredRol === $normalizedCheck;
     }
 
-    public function hasAnyRole($roles)
+    public function hasAnyLegacyRole($roles)
     {
         if (is_array($roles)) {
             foreach ($roles as $role) {
-                if ($this->hasRole($role)) {
+                if ($this->hasLegacyRole($role)) {
                     return true;
                 }
             }
             return false;
         }
 
-        return $this->hasRole($roles);
+        return $this->hasLegacyRole($roles);
     }
 
     public function isAdmin()
     {
-        return $this->hasAnyRole(['admin', 'super_admin', 'superadmin']);
+        if ($this->roles()->whereIn('name', ['Admin', 'Superadmin'])->exists()) return true;
+
+        $role = strtolower($this->role ?? '');
+        $rol = strtolower($this->rol ?? '');
+        $adminRoles = ['admin', 'superadmin', 'super_admin'];
+        
+        return in_array($role, $adminRoles) || in_array($rol, $adminRoles);
     }
 
     public function isSuperAdmin()
     {
-        return $this->hasAnyRole(['super_admin', 'superadmin']);
+        // Prioridad: Rol de Spatie
+        if ($this->roles()->where('name', 'Superadmin')->exists()) return true;
+
+        // Atributos de base de datos (fallback legacy)
+        $role = strtolower($this->role ?? '');
+        $rol = strtolower($this->rol ?? '');
+        
+        // Si el rol es 'Admin', explícitamente NO es superadmin (para evitar confusiones)
+        if ($role === 'admin' || $rol === 'admin') return false;
+
+        $superRoles = ['superadmin', 'super_admin'];
+
+        return in_array($role, $superRoles) || in_array($rol, $superRoles);
     }
 
     public function isCliente()
     {
-        return $this->hasRole('cliente');
+        return $this->hasAnyLegacyRole(['cliente', 'usuario']);
+    }
+
+    public function isGestor()
+    {
+        return $this->hasAnyLegacyRole(['gestor', 'admin', 'superadmin', 'super_admin']);
+    }
+
+    public function isAprobador()
+    {
+        return $this->hasAnyLegacyRole(['aprobador', 'admin', 'superadmin', 'super_admin']);
     }
 
     public function hasApp($app)

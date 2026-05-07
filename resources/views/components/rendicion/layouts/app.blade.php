@@ -880,7 +880,7 @@
 
 
 
-                @if(auth()->check() && auth()->user()->hasAnyRole(['Aprobador', 'Gestor', 'Admin', 'Superadmin', 'super_admin']))
+                @if(auth()->user()->isGestor() || auth()->user()->isAprobador())
                     <a href="{{ route('rendicion.reports.inbox') }}" class="nav-item {{ request()->routeIs('rendicion.reports.inbox') ? 'active' : '' }}" title="Bandeja">
                         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0l-8 5-8-5"/>
@@ -889,19 +889,14 @@
                     </a>
                 @endif
 
-                @if(auth()->check() && auth()->user()->hasAnyRole(['Superadmin', 'Admin', 'super_admin']))
+                @if(auth()->user()->isAdmin())
                     <a href="{{ route('rendicion.users.index') }}" class="nav-item {{ request()->routeIs('rendicion.users.*') ? 'active' : '' }}" title="Usuarios">
                         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-4-4h-1m-4 6h-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2h5m10-10a4 4 0 10-8 0 4 4 0 008 0z"/>
                         </svg>
                         <span class="nav-label">Usuarios</span>
                     </a>
-                    <a href="{{ route('rendicion.users.index') }}" class="nav-item" title="Crear Usuario">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        <span class="nav-label">Crear Usuario</span>
-                    </a>
+
 
                     <a href="{{ route('rendicion.config.index') }}" class="nav-item {{ request()->routeIs('rendicion.config.*') ? 'active' : '' }}" title="Configuración">
                         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

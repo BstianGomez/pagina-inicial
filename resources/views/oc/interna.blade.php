@@ -28,11 +28,15 @@
 
         <main class="content">
             <form class="card" method="POST" enctype="multipart/form-data">
-                <div style="margin: -40px -40px 30px; padding: 24px 40px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 24px 24px 0 0;">
-                    <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: #0f172a;">Solicitud de OC Interna</div>
-                    <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Completa los campos para solicitar una orden de compra</div>
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Solicitud de OC Interna</h2>
+                        <p class="card-subtitle">Completa los campos para solicitar una orden de compra</p>
+                    </div>
                 </div>
-                @csrf
+                
+                <div class="card-body">
+                    @csrf
 
                 <!-- Honeypot para evitar bots -->
                 <div style="display:none;" aria-hidden="true">
@@ -61,7 +65,7 @@
                     </div>
                 @endif
 
-                <div class="form-body">
+
                     <div class="form-grid three-col">
                         <div class="form-field">
                             <label class="form-label">CECO de imputación del gasto <span class="required">*</span></label>

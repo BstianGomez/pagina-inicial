@@ -24,7 +24,18 @@ class RoleMiddleware
 
         // Check both 'role' and 'rol' columns for any of the allowed roles
         foreach ($roles as $role) {
-            if ($user->role === $role || $user->rol === $role) {
+            $check = strtolower($role);
+            
+            // Si estamos verificando Superadmin, usar el helper del modelo que está blindado
+            if (($check === 'superadmin' || $check === 'super_admin') && $user->isSuperAdmin()) {
+                return $next($request);
+            }
+
+            // Fallback para otros roles
+            $stored1 = strtolower($user->role ?? '');
+            $stored2 = strtolower($user->rol ?? '');
+
+            if ($stored1 === $check || $stored2 === $check) {
                 return $next($request);
             }
         }

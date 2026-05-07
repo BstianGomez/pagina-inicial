@@ -467,6 +467,7 @@
                         <label class="label" for="name">Nombre</label>
                         <input class="input" id="name" name="name" type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\'-]+" title="El nombre no puede contener números" value="{{ old('name') }}" required />
                     </div>
+
                     <div class="field">
                         <label class="label" for="email">Correo</label>
                         <input class="input" id="email" name="email" type="email" value="{{ old('email') }}" required />
@@ -493,14 +494,6 @@
                                 @endif
                             @endauth
                         </select>
-                    </div>
-                    <div class="field">
-                        <label class="label">Páginas asignadas</label>
-                        <div class="checkbox-group" style="display:flex; gap:12px; flex-wrap:wrap;">
-                            <label><input type="checkbox" name="assigned_apps[]" value="oc" {{ in_array('oc', old('assigned_apps', [])) ? 'checked' : '' }}> OC</label>
-                            <label><input type="checkbox" name="assigned_apps[]" value="viajes" {{ in_array('viajes', old('assigned_apps', [])) ? 'checked' : '' }}> Viajes</label>
-                            <label><input type="checkbox" name="assigned_apps[]" value="rendicion" {{ in_array('rendicion', old('assigned_apps', [])) ? 'checked' : '' }}> Rendición</label>
-                        </div>
                     </div>
                 </form>
             </div>
@@ -713,6 +706,12 @@
                 closeCreateModal();
             }
         });
+        // Reabrir modal si hay errores de validación
+        @if($errors->any())
+        window.onload = function() {
+            openCreateModal();
+        };
+        @endif
     </script>
 </body>
 </html>

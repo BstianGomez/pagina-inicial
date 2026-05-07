@@ -39,22 +39,20 @@ class UserController extends Controller
             'role' => 'required|exists:roles,name',
             'has_fixed_fund' => 'required|boolean',
             'fixed_fund_amount' => 'nullable|required_if:has_fixed_fund,1|numeric|gt:0',
-            'assigned_apps' => 'required|array|min:1',
-            'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);
 
         if (!$this->canAssignRole(auth()->user(), $validated['role'])) {
             return back()->with('error', 'No tienes permisos para asignar ese rol.');
         }
 
-        $assignedApps = array_values(array_unique($validated['assigned_apps']));
-
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'assigned_app' => $assignedApps[0] ?? null,
-            'assigned_apps' => $assignedApps,
+            'role' => $validated['role'],
+            'rol' => $validated['role'],
+            'assigned_app' => 'rendicion',
+            'assigned_apps' => ['rendicion'],
             'has_fixed_fund' => (bool) $validated['has_fixed_fund'],
             'fixed_fund_amount' => (bool) $validated['has_fixed_fund'] ? $validated['fixed_fund_amount'] : 0,
         ]);
@@ -80,21 +78,17 @@ class UserController extends Controller
             'role' => 'required|exists:roles,name',
             'has_fixed_fund' => 'required|boolean',
             'fixed_fund_amount' => 'nullable|required_if:has_fixed_fund,1|numeric|gt:0',
-            'assigned_apps' => 'required|array|min:1',
-            'assigned_apps.*' => 'required|in:oc,viajes,rendicion',
         ]);
 
         if (!$this->canAssignRole(auth()->user(), $validated['role'])) {
             return back()->with('error', 'No tienes permisos para asignar ese rol.');
         }
 
-        $assignedApps = array_values(array_unique($validated['assigned_apps']));
-
         $user->update([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'assigned_app' => $assignedApps[0] ?? null,
-            'assigned_apps' => $assignedApps,
+            'role' => $validated['role'],
+            'rol' => $validated['role'],
             'has_fixed_fund' => (bool) $validated['has_fixed_fund'],
             'fixed_fund_amount' => (bool) $validated['has_fixed_fund'] ? $validated['fixed_fund_amount'] : 0,
         ]);

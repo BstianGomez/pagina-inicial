@@ -9,7 +9,7 @@ use App\Http\Controllers\Rendicion\ConfigController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('rendicion.reports.index');
+    return redirect()->route('rendicion.dashboard');
 });
 
 Route::middleware(['auth'])->group(function () {

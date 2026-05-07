@@ -68,7 +68,7 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
             'role' => ['required', Rule::in($availableRoles)],
         ]);
 
@@ -77,11 +77,12 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'rol' => $request->role,
             'assigned_app' => 'oc',
             'assigned_apps' => ['oc'],
         ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuario creado exitosamente.');
+        return redirect()->route('oc.users.index')->with('success', 'Usuario creado exitosamente.');
     }
 
     /**
@@ -122,7 +123,7 @@ class UserController extends Controller
         ];
 
         if ($request->filled('password')) {
-            $rules['password'] = 'required|string|min:8|confirmed';
+            $rules['password'] = 'required|string|min:8';
         }
 
         $request->validate($rules);
@@ -131,6 +132,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
+            'rol' => $request->role,
         ];
 
         if ($request->filled('password')) {
@@ -139,7 +141,7 @@ class UserController extends Controller
 
         $user->update($userData);
 
-        return redirect()->route('users.index')->with('success', 'Usuario actualizado exitosamente.');
+        return redirect()->route('oc.users.index')->with('success', 'Usuario actualizado exitosamente.');
     }
 
     /**
@@ -161,7 +163,7 @@ class UserController extends Controller
 
         $user->delete();
 
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado exitosamente.');
+        return redirect()->route('oc.users.index')->with('success', 'Usuario eliminado exitosamente.');
     }
 
     /**
@@ -170,7 +172,7 @@ class UserController extends Controller
     private function getAvailableRoles($currentUserRole)
     {
         return match ($currentUserRole) {
-            'super_admin' => ['admin', 'gestor', 'cliente'],
+            'super_admin' => ['super_admin', 'admin', 'gestor', 'cliente'],
             'admin' => ['gestor', 'cliente'],
             'gestor' => ['cliente'],
             default => [],

@@ -2,46 +2,58 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// El dashboard ha sido eliminado y reemplazado por /app-redirect
 
 
 Route::middleware('auth')->group(function () {
+    // Redirección de rutas legadas para evitar 404
+    Route::get('/usuarios', function() {
+        return redirect()->route('oc.users.index');
+    });
+
     // Redirección inteligente post-login
     Route::get('/app-redirect', function () {
         $user = auth()->user();
         
-        // Super admins siempre ven la selección (o pueden ir directo al panel admin)
-        if ($user->isSuperAdmin()) {
-            $apps = $user->assigned_apps ?? ['oc', 'viajes', 'rendicion'];
-            return view('select-app', ['apps' => $apps, 'is_super_admin' => true]);
-        }
-
         $apps = $user->assigned_apps ?? $user->assigned_app ?? [];
         if (is_string($apps)) {
             $decoded = json_decode($apps, true);
             $apps = is_array($decoded) ? $decoded : [$apps];
         }
+
+        // Si es Superadmin y por alguna razón no tiene apps, le mostramos todas
+        if ($user->isSuperAdmin() && empty($apps)) {
+            $apps = ['oc', 'viajes', 'rendicion'];
+        }
+
         if (!$apps || count($apps) === 0) {
             abort(403, 'No tienes aplicaciones asignadas.');
         }
-        if (count($apps) === 1) {
+
+        // Redirección automática si tiene una sola app y NO es Superadmin
+        // (Los Admins ahora se redireccionan también porque ya no ven el Panel Admin)
+        if (count($apps) === 1 && !$user->isSuperAdmin()) {
             $app = $apps[0];
             return redirect(
                 $app === 'oc' ? '/oc/oc' :
                 ($app === 'viajes' ? '/viajes/mis-solicitudes' :
-                ($app === 'rendicion' ? '/rendicion/informes' : '/dashboard'))
+                ($app === 'rendicion' ? '/rendicion/informes' : '/app-redirect'))
             );
         }
-        // Si tiene más de una app, mostrar selección
-        return view('select-app', ['apps' => $apps, 'is_super_admin' => false]);
+
+        // Mostrar selección si tiene más de una app o es Superadmin
+        return view('select-app', [
+            'apps' => $apps, 
+            'is_super_admin' => $user->isSuperAdmin()
+        ]);
     })->name('app-redirect');
 
     // Logout forzado (cierre completo de sesión)
@@ -73,12 +85,18 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Administración Global
-    Route::prefix('admin')->as('admin.')->group(function () {
-        Route::get('/usuarios', [\App\Http\Controllers\Admin\UserManagementController::class, 'index'])->name('users.index');
-        Route::post('/usuarios', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('users.store');
-        Route::put('/usuarios/{user}', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('users.update');
-        Route::delete('/usuarios/{user}', [\App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('users.destroy');
+    // Administración Global (Solo Superadmin)
+    Route::middleware(['role:Superadmin'])->prefix('admin')->as('admin.')->group(function () {
+        Route::get('/usuarios', [UserManagementController::class, 'index'])->name('users.index');
+        Route::post('/usuarios', [UserManagementController::class, 'store'])->name('users.store');
+        Route::put('/usuarios/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/usuarios/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+        // Reportes y Dashboard separados
+        Route::get('/reportes/oc', [ReportController::class, 'oc'])->name('reports.oc');
+        Route::get('/reportes/viajes', [ReportController::class, 'viajes'])->name('reports.viajes');
+        Route::get('/reportes/rendicion', [ReportController::class, 'rendicion'])->name('reports.rendicion');
+        Route::get('/reportes/descargar/{type}', [ReportController::class, 'downloadData'])->name('reports.download');
     });
 });
 

@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UnifiedUserSeeder extends Seeder
 {
@@ -12,28 +14,51 @@ class UnifiedUserSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::create([
-            'name' => 'Usuario OC',
-            'email' => 'oc@test.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-            'assigned_app' => 'oc',
-            'role' => 'admin',
-        ]);
+        $users = [
+            [
+                'name' => 'Usuario OC',
+                'email' => 'oc@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'Admin',
+                'assigned_apps' => ['oc'],
+            ],
+            [
+                'name' => 'Usuario Viajes',
+                'email' => 'viajes@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'Admin',
+                'assigned_apps' => ['viajes'],
+            ],
+            [
+                'name' => 'Usuario Rendicion',
+                'email' => 'rendicion@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'Admin',
+                'assigned_apps' => ['rendicion'],
+            ],
+            [
+                'name' => 'Bastián Gómez',
+                'email' => 'bastian@test.com',
+                'password' => Hash::make('password'),
+                'role' => 'Superadmin',
+                'assigned_apps' => ['oc', 'viajes', 'rendicion'],
+            ]
+        ];
 
-        \App\Models\User::create([
-            'name' => 'Usuario Viajes',
-            'email' => 'viajes@test.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-            'assigned_app' => 'viajes',
-            'role' => 'admin',
-        ]);
+        foreach ($users as $userData) {
+            $role = $userData['role'];
+            unset($userData['role']);
+            
+            $user = User::updateOrCreate(
+                ['email' => $userData['email']],
+                array_merge($userData, [
+                    'role' => $role,
+                    'rol' => $role,
+                    'assigned_app' => $userData['assigned_apps'][0] ?? null,
+                ])
+            );
 
-        \App\Models\User::create([
-            'name' => 'Usuario Rendicion',
-            'email' => 'rendicion@test.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('password'),
-            'assigned_app' => 'rendicion',
-            'role' => 'admin',
-        ]);
+            $user->syncRoles([$role]);
+        }
     }
 }

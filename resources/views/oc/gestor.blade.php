@@ -13,7 +13,7 @@
         @include('oc.partials.common_styles')
         
         .content {
-            padding: 16px 10px 30px;
+            padding: 24px 20px 30px;
         }
 
         /* Stats Cards */
@@ -81,7 +81,7 @@
             display: grid;
             grid-template-columns: 1.5fr repeat(2, minmax(150px, 1fr));
             gap: 14px;
-            padding: 16px 20px;
+            padding: 20px 36px;
             border-bottom: 1px solid rgba(227, 232, 240, 0.8);
             background: #f8fafc;
         }
@@ -1258,41 +1258,41 @@
                     
 
                 <section class="card" aria-label="Tabla de solicitudes">
-                        <div class="toolbar">
-                            <div>
-                                <div class="toolbar-title" style="display:flex; align-items:center; gap:12px; margin-bottom: 4px;">
-                                    <div style="background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(15, 107, 182, 0.05);">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0f6bb6;">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                            <polyline points="14 2 14 8 20 8"></polyline>
-                                            <line x1="16" y1="13" x2="8" y2="13"></line>
-                                            <line x1="16" y1="17" x2="8" y2="17"></line>
-                                            <polyline points="10 9 9 9 8 9"></polyline>
-                                        </svg>
-                                    </div>
-                                    <h1 style="font-size: 24px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; margin: 0;">Gestor de Aprobaciones</h1>
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title" style="display:flex; align-items:center; gap:12px;">
+                                <div style="background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(15, 107, 182, 0.05); flex-shrink: 0;">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#0f6bb6;">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
                                 </div>
-                                <div class="toolbar-subtitle" style="font-size: 14px; color: #64748b; margin-left: 52px;">Administre y procese las solicitudes de órdenes de compra.</div>
+                                <h1 class="card-title" style="font-size: 22px;">Gestor de Aprobaciones</h1>
                             </div>
-                    <div class="toolbar-actions" style="display: flex; align-items: center; gap: 16px;">
-                        <div class="pending-summary">
-                            <span class="pending-summary-dot"></span>
-                            <span class="pending-summary-label">Pendientes Totales</span>
-                            <span class="pending-summary-count">{{ \Illuminate\Support\Facades\DB::table('oc_solicitudes')->where('estado', 'Solicitada')->count() }}</span>
+                            <div class="card-subtitle" style="margin-left: 56px;">Administre y procese las solicitudes de órdenes de compra.</div>
                         </div>
-                        <a href="{{ route('oc.export') }}" class="btn btn-ghost">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Exportar
-                        </a>
+                        <div class="toolbar-actions" style="display: flex; align-items: center; gap: 16px;">
+                            <div class="pending-summary">
+                                <span class="pending-summary-dot"></span>
+                                <span class="pending-summary-label">Pendientes Totales</span>
+                                <span class="pending-summary-count">{{ \Illuminate\Support\Facades\DB::table('oc_solicitudes')->where('estado', 'Solicitada')->count() }}</span>
+                            </div>
+                            <a href="{{ route('oc.export') }}" class="btn btn-ghost">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Exportar
+                            </a>
+                        </div>
                     </div>
-                </div>
 
 
-                <div style="display: flex; gap: 24px; padding: 0 30px; border-bottom: 1px solid #e2e8f0; background: #fff;">
+                <div style="display: flex; gap: 24px; padding: 0 36px; border-bottom: 1px solid #e2e8f0; background: #fff;">
                     <a href="{{ route('oc.gestor') }}" style="padding: 16px 4px; font-weight: 600; font-size: 14px; text-decoration: none; color: {{ request('vista') !== 'historial' ? '#2563eb' : '#64748b' }}; border-bottom: 3px solid {{ request('vista') !== 'historial' ? '#2563eb' : 'transparent' }};">
                         Pendientes
                     </a>

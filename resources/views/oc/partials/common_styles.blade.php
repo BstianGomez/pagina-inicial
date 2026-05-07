@@ -48,7 +48,7 @@
 
     /* Sidebar Header & Brand */
     .sidebar-header {
-        padding: 20px 16px;
+        padding: 24px 20px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         display: flex;
         align-items: center;
@@ -70,7 +70,7 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        padding: 4px;
+        padding: 6px;
     }
 
     .brand-badge img {
@@ -256,7 +256,7 @@
         align-items: center;
         gap: 12px;
         background: rgba(255,255,255,0.12);
-        padding: 6px 20px;
+        padding: 8px 24px;
         border-radius: 50px;
         border: 1px solid rgba(255,255,255,0.2);
         backdrop-filter: blur(10px);
@@ -279,7 +279,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 4px 12px;
+        padding: 6px 16px;
         background: rgba(255,255,255,0.12);
         border-radius: 12px;
         border: 1px solid rgba(255,255,255,0.2);
@@ -419,9 +419,37 @@
         border: 1px solid var(--line);
         border-radius: 24px;
         box-shadow: 0 10px 40px rgba(16, 24, 40, 0.05);
-        padding: 16px;
+        padding: 0; /* Changed to 0 to allow header to reach edges */
         width: 100%;
         margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 28px 36px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    .card-subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+
+    .card-body {
+        padding: 36px;
     }
 
     /* Forms */
@@ -781,7 +809,7 @@
     /* Responsive Table Utils */
     @media (max-width: 768px) {
         .content { padding: 16px; }
-        .card { padding: 20px; border-radius: 16px; }
+        .card { padding: 0; border-radius: 16px; }
         
         .responsive-table thead {
             display: none;

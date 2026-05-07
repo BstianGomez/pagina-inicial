@@ -39,18 +39,22 @@ class AuthenticatedSessionController extends Controller
         
         $app = count($apps) > 1 ? null : ($apps[0] ?? null);
 
-        if (!$app && count($apps) > 1) {
+        if ($user->isAdmin() || (!$app && count($apps) > 1)) {
             $redirect = route('app-redirect', absolute: false);
         } else {
             $redirect = match($app) {
                 'oc' => route('oc.index', absolute: false),
                 'viajes' => route('viajes.mis-solicitudes', absolute: false),
-                'rendicion' => route('rendicion.reports.index', absolute: false),
-                default => route('dashboard', absolute: false),
+                'rendicion' => route('rendicion.dashboard', absolute: false),
+                default => route('app-redirect', absolute: false),
             };
         }
 
-        if (count($apps) === 1 && $app) {
+        if (count($apps) === 1 && $app && !$user->isAdmin()) {
+            return redirect($redirect);
+        }
+
+        if ($user->isAdmin()) {
             return redirect($redirect);
         }
 
