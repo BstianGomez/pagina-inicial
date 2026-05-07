@@ -54,6 +54,44 @@
             background: #0f172a;
             color: white;
         }
+
+        /* ===== DARK MODE ===== */
+        html.dark .app-card-premium {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        }
+
+        html.dark .app-card-premium:hover {
+            border-color: #818cf8;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        html.dark .icon-oc   { background: #1e3a5f; color: #93c5fd; }
+        html.dark .icon-viajes { background: #2e1a5e; color: #c4b5fd; }
+        html.dark .icon-rendicion { background: #064e3b; color: #6ee7b7; }
+        html.dark .icon-admin { background: #1e293b; color: #94a3b8; border-color: #334155; }
+
+        .card-admin { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-style: dashed; }
+        html.dark .card-admin { background: #1e293b !important; border-color: #475569; }
+
+        html.dark .btn-enter {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        html.dark .app-card-premium:hover .btn-enter {
+            background: #6366f1;
+            color: white;
+        }
+
+        html.dark h2, html.dark h3 {
+            color: #f1f5f9 !important;
+        }
+
+        html.dark p {
+            color: #94a3b8 !important;
+        }
     </style>
 
     <div class="py-16 px-6">
@@ -104,7 +142,7 @@
                 @endif
 
                 @if(auth()->user()->isSuperAdmin())
-                <a href="{{ route('admin.users.index') }}" class="app-card-premium" style="background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-style: dashed;">
+                <a href="{{ route('admin.users.index') }}" class="app-card-premium card-admin">
                     <div>
                         <div class="icon-box icon-admin">
                             <i class="fas fa-user-shield"></i>

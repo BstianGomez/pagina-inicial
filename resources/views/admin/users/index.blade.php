@@ -312,6 +312,107 @@
                 background: #f1f5f9;
                 color: var(--text-main);
             }
+
+            /* ===== DARK MODE ===== */
+            html.dark body {
+                background-color: #0f172a;
+                color: #f1f5f9;
+            }
+
+            html.dark .main-card {
+                background: #1e293b;
+                border-color: #334155;
+            }
+
+            html.dark .table-sofofa th {
+                background: #0f172a;
+                color: #94a3b8;
+                border-bottom-color: #334155;
+            }
+
+            html.dark .table-sofofa td {
+                border-bottom-color: #1e293b;
+                color: #cbd5e1;
+            }
+
+            html.dark .user-initials {
+                background: #1e3a5f;
+                color: #93c5fd;
+            }
+
+            html.dark .btn-icon {
+                background: #1e293b;
+                border-color: #334155;
+                color: #94a3b8;
+            }
+
+            html.dark .btn-icon:hover {
+                border-color: #818cf8;
+                color: #818cf8;
+                background: #1e293b;
+            }
+
+            html.dark .btn-delete:hover {
+                border-color: #f87171;
+                color: #f87171;
+                background: #3f1515;
+            }
+
+            html.dark [style*="background: white"] {
+                background: #1e293b !important;
+                border-color: #334155 !important;
+                color: #f1f5f9 !important;
+            }
+
+            html.dark input,
+            html.dark select,
+            html.dark .input-premium {
+                background: #0f172a !important;
+                border-color: #334155 !important;
+                color: #f1f5f9 !important;
+            }
+
+            html.dark .modal-premium {
+                background: #1e293b;
+            }
+
+            html.dark .modal-footer-premium {
+                border-top-color: #334155;
+            }
+
+            html.dark .checkbox-tile {
+                background: #0f172a;
+                border-color: #334155;
+                color: #f1f5f9;
+            }
+
+            html.dark .checkbox-tile:hover {
+                border-color: #475569;
+            }
+
+            html.dark .modal-body-premium .label-premium {
+                color: #cbd5e1;
+            }
+
+            html.dark .btn-cancel-premium {
+                color: #94a3b8;
+            }
+
+            html.dark .btn-cancel-premium:hover {
+                background: #334155;
+                color: #f1f5f9;
+            }
+
+            /* Filters bar */
+            html.dark [style*="background: white; border-radius: 20px"] {
+                background: #1e293b !important;
+                border-color: #334155 !important;
+            }
+
+            /* Pagination & misc */
+            html.dark [style*="border-top: 1px solid #f1f5f9"] {
+                border-color: #334155 !important;
+            }
         </style>
     </head>
 

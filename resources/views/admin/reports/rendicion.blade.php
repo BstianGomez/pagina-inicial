@@ -21,7 +21,7 @@
                         <i class="fas fa-file-pdf text-red-500 text-[10px]"></i>
                         <span>PDF</span>
                     </button>
-                    <button onclick="openSendModal()" class="px-3 py-1.5 bg-emerald-600 border border-emerald-700 rounded-lg font-bold text-white hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm text-xs">
+                    <button onclick="openSendModal()" style="background-color:#059669; color:#fff; border:1px solid #047857;" class="px-3 py-1.5 rounded-lg font-bold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm text-xs">
                         <i class="fas fa-paper-plane text-[10px]"></i>
                         <span>Enviar</span>
                     </button>
@@ -134,8 +134,8 @@
                     </div>
                 </div>
                 <div class="flex gap-3 mt-8">
-                    <button onclick="closeSendModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">Cancelar</button>
-                    <button onclick="handleSend()" class="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all">Enviar Ahora</button>
+                    <button onclick="closeSendModal()" style="flex:1; padding:12px 16px; background:#f1f5f9; color:#475569; border-radius:12px; font-weight:700; font-size:14px; border:none; cursor:pointer;">Cancelar</button>
+                    <button onclick="handleSend()" style="flex:1; padding:12px 16px; background:#059669; color:#fff; border-radius:12px; font-weight:700; font-size:14px; border:none; cursor:pointer;">Enviar Ahora</button>
                 </div>
             </div>
         </div>
