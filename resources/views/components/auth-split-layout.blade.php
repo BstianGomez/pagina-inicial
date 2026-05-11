@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" style="height:100%;overflow:hidden;">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,10 +14,17 @@
         <!-- Scripts -->
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
-            body { font-family: 'Instrument Sans', sans-serif; }
+            *, *::before, *::after { box-sizing: border-box; }
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                font-family: 'Instrument Sans', sans-serif;
+            }
         </style>
     </head>
-    <body class="font-sans text-gray-900 antialiased bg-white">
+    <body>
         {{ $slot }}
     </body>
 </html>

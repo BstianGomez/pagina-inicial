@@ -368,9 +368,9 @@
         }
 
         .chart-canvas {
-            height: 400px;
+            height: clamp(260px, 30vw, 380px);
             width: 100%;
-            padding: 20px;
+            padding: 16px 20px;
             background: #f9fbfd;
             position: relative;
         }
@@ -382,18 +382,64 @@
             margin-bottom: 20px;
         }
 
-        .filter-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: flex-end;
-            width: 100%;
-        }
-
         .chart-canvas canvas {
             max-width: 100%;
             max-height: 100%;
             display: block !important;
+        }
+
+        .chart-legend-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            padding: 12px 20px 16px;
+            background: #f9fbfd;
+            border-top: 1px solid #f0f4f8;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .chart-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .chart-stat-row {
+            display: flex;
+            gap: 16px;
+            padding: 12px 20px;
+            background: #fff;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .chart-stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .chart-stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            color: #94a3b8;
+        }
+
+        .chart-stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
         }
 
         @media (max-width: 900px) {
@@ -570,19 +616,25 @@
                 <section class="card">
                     <div class="card-header">
                         <h2 class="card-title">Monto total por CECO</h2>
+                        <p class="card-subtitle">Distribución acumulada del gasto por centro de costo</p>
                     </div>
+                    <div id="chart1-stats" class="chart-stat-row"></div>
                     <div class="chart-canvas">
-                        <canvas id="chartByCeco" width="550" height="360"></canvas>
+                        <canvas id="chartByCeco"></canvas>
                     </div>
+                    <div id="chart1-legend" class="chart-legend-wrap"></div>
                 </section>
 
                 <section class="card">
                     <div class="card-header">
                         <h2 class="card-title">Gasto mensual por CECO</h2>
+                        <p class="card-subtitle">Evolución mes a mes de órdenes de compra</p>
                     </div>
+                    <div id="chart2-stats" class="chart-stat-row"></div>
                     <div class="chart-canvas">
-                        <canvas id="chartByMonth" width="550" height="360"></canvas>
+                        <canvas id="chartByMonth"></canvas>
                     </div>
+                    <div id="chart2-legend" class="chart-legend-wrap"></div>
                 </section>
             </div>
 
@@ -775,228 +827,189 @@
             if (typeof ChartDataLabels !== 'undefined') {
                 Chart.register(ChartDataLabels);
             }
-            
-            // Datos para gráfico por CECO
-            const dataByCeco = @json($sumByCeco);
-            
-            const toCecoNumber = (value) => {
-                const match = String(value || '').match(/\d+/g);
-                return match ? match.join('') : String(value || '');
+
+            // ── Paleta de colores vibrante ──────────────────────────
+            const PALETTE = [
+                { solid: '#2563eb', soft: 'rgba(37,99,235,0.85)'   },
+                { solid: '#7c3aed', soft: 'rgba(124,58,237,0.85)'  },
+                { solid: '#0891b2', soft: 'rgba(8,145,178,0.85)'   },
+                { solid: '#059669', soft: 'rgba(5,150,105,0.85)'   },
+                { solid: '#d97706', soft: 'rgba(217,119,6,0.85)'   },
+                { solid: '#dc2626', soft: 'rgba(220,38,38,0.85)'   },
+                { solid: '#7e22ce', soft: 'rgba(126,34,206,0.85)'  },
+                { solid: '#0f766e', soft: 'rgba(15,118,110,0.85)'  },
+            ];
+
+            const fmtMoney = (v) => {
+                if (v >= 1000000) return '$' + (v / 1000000).toFixed(1).replace('.0','') + 'M';
+                if (v >= 1000)    return '$' + (v / 1000).toFixed(0) + 'k';
+                return '$' + Math.round(v).toLocaleString('es-CL');
             };
+            const fmtFull = (v) => '$' + Math.round(v).toLocaleString('es-CL');
+
+            function renderLegend(id, labels) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = labels.map((lbl, i) =>
+                    `<span class="chart-legend-item"><span class="chart-legend-dot" style="background:${PALETTE[i % PALETTE.length].solid}"></span>${lbl}</span>`
+                ).join('');
+            }
+
+            function renderStatRow(id, items) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (!items.length) { el.style.display = 'none'; return; }
+                el.innerHTML = items.map(it =>
+                    `<div class="chart-stat-item"><span class="chart-stat-label">${it.label}</span><span class="chart-stat-value">${it.value}</span></div>`
+                ).join('');
+            }
+
+            // ── Gráfico 1: Total por CECO ───────────────────────────
+            const dataByCeco = @json($sumByCeco);
             const cecoLabels = dataByCeco.map(item => String(item.ceco));
             const cecoValues = dataByCeco.map(item => parseFloat(item.total_monto));
-            
+            const totalGasto = cecoValues.reduce((a, b) => a + b, 0);
+            const maxIdx     = cecoValues.length ? cecoValues.indexOf(Math.max(...cecoValues)) : -1;
+            const topCeco    = maxIdx >= 0 ? cecoLabels[maxIdx] : '—';
 
-        // Datos para gráfico por mes
-        const dataByMonth = @json($sumByCecoMonth);
-        
-        // Preparar datos mensuales
-        const months = {};
-        const cecosSet = new Set();
-        
-        dataByMonth.forEach(item => {
-            const monthKey = `${item.year}-${String(item.month).padStart(2, '0')}`;
-            const monthLabel = new Date(item.year, item.month - 1).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
-            
-            if (!months[monthKey]) {
-                months[monthKey] = { label: monthLabel, data: {} };
-            }
-            
-            const cecoKey = String(item.ceco);
-            months[monthKey].data[cecoKey] = parseFloat(item.total_monto);
-            cecosSet.add(cecoKey);
-        });
+            renderStatRow('chart1-stats', [
+                { label: 'Total acumulado', value: fmtFull(totalGasto) },
+                { label: 'N° de CECOs',     value: cecoLabels.length  },
+                { label: 'Mayor gasto',      value: topCeco            },
+            ]);
+            renderLegend('chart1-legend', cecoLabels);
 
-        const monthLabels = Object.values(months).map(m => m.label);
-        const cecosList = Array.from(cecosSet);
-        
-        
-        // Colores para cada CECO
-        const colors = [
-            'rgba(15, 107, 182, 0.8)',
-            'rgba(27, 125, 200, 0.8)',
-            'rgba(52, 152, 219, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)',
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(54, 162, 235, 0.8)',
-        ];
+            const chartByCecoCanvas = document.getElementById('chartByCeco');
+            if (!chartByCecoCanvas) { console.error('chartByCeco no encontrado'); return; }
 
-        const datasets = cecosList.map((ceco, index) => ({
-            label: ceco,
-            data: Object.keys(months).map(monthKey => months[monthKey].data[ceco] || 0),
-            backgroundColor: colors[index % colors.length],
-            borderColor: colors[index % colors.length].replace('0.8', '1'),
-            borderWidth: 1
-        }));
-
-        // Gráfico 1: Total por CECO
-        const chartByCecoCanvas = document.getElementById('chartByCeco');
-        if (!chartByCecoCanvas) {
-            console.error('❌ Canvas chartByCeco no encontrado en el DOM');
-            return;
-        }
-        
-        const ctx1 = chartByCecoCanvas.getContext('2d');
-        
-        const maxValue = Math.max(...cecoValues);
-        
-        if(window.chart1) window.chart1.destroy();
-        window.chart1 = new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: cecoLabels,
-                datasets: [{
-                    label: 'Monto Total',
-                    data: cecoValues,
-                    backgroundColor: 'rgba(15, 107, 182, 0.8)',
-                    borderColor: 'rgba(15, 107, 182, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                layout: { padding: { right: 60 } },
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: 'y',
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                                        datalabels: {
-                        anchor: 'end',
-                        align: 'right',
-                        offset: 4,
-                        color: '#0f172a',
-                        clamp: false,
-                        clip: false,
-                        font: {
-                            weight: '600',
-                            size: 11
-                        },
-                        padding: {
-                            left: 5
-                        },
-                        formatter: function(value) {
-                            if (value === 0) return '';
-                            if (value >= 1000000) return '$' + (value / 1000000).toFixed(1).replace('.0', '') + 'M';
-                            if (value >= 1000) return '$' + (value / 1000).toFixed(0) + 'k';
-                            return '$' + value.toLocaleString('es-ES');
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return '$' + context.parsed.x.toLocaleString('es-ES');
-                            }
-                        }
-                    }
+            if (window.chart1) window.chart1.destroy();
+            window.chart1 = new Chart(chartByCecoCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: cecoLabels,
+                    datasets: [{
+                        label: 'Monto Total',
+                        data: cecoValues,
+                        backgroundColor: cecoLabels.map((_, i) => PALETTE[i % PALETTE.length].soft),
+                        borderColor:     cecoLabels.map((_, i) => PALETTE[i % PALETTE.length].solid),
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }]
                 },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString('es-ES');
-                            }
+                options: {
+                    layout: { padding: { right: 72 } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end', align: 'right', offset: 4,
+                            clamp: true, clip: false,
+                            color: '#1e293b',
+                            font: { weight: '700', size: 11 },
+                            formatter: fmtMoney,
+                        },
+                        tooltip: {
+                            callbacks: { label: ctx => ' ' + fmtFull(ctx.parsed.x) }
                         }
                     },
-                    y: {
-                        ticks: {
-                            autoSkip: false
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { color: '#64748b', font: { size: 11 }, callback: fmtMoney }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { autoSkip: false, color: '#334155', font: { weight: '600', size: 12 } }
                         }
                     }
                 }
-            },
-            
-        });
+            });
 
-        // Gráfico 2: Por mes y CECO
-        const chartByMonthCanvas = document.getElementById('chartByMonth');
-        if (!chartByMonthCanvas) {
-            console.error('❌ Canvas chartByMonth no encontrado en el DOM');
-            return;
-        }
-        
-        const ctx2 = chartByMonthCanvas.getContext('2d');
-        
-        if(window.chart2) window.chart2.destroy();
-        window.chart2 = new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: monthLabels,
-                datasets: datasets
-            },
-            options: {
-                layout: { padding: { top: 30 } },
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 10,
-                            font: {
-                                size: 11
-                            }
-                        }
-                    },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        color: '#101828',
-                        clamp: false,
-                        clip: false,
-                        display: function(context) {
-                            // Solo mostrar si el valor es mayor a 0
-                            return context.dataset.data[context.dataIndex] > 0;
+            // ── Gráfico 2: Mensual por CECO ─────────────────────────
+            const dataByMonth = @json($sumByCecoMonth);
+            const months = {};
+            const cecosSet = new Set();
+
+            dataByMonth.forEach(item => {
+                const monthKey   = `${item.year}-${String(item.month).padStart(2,'0')}`;
+                const monthLabel = new Date(item.year, item.month - 1)
+                    .toLocaleDateString('es-ES', { year: 'numeric', month: 'short' });
+                if (!months[monthKey]) months[monthKey] = { label: monthLabel, data: {} };
+                const cecoKey = String(item.ceco);
+                months[monthKey].data[cecoKey] = parseFloat(item.total_monto);
+                cecosSet.add(cecoKey);
+            });
+
+            const monthLabels  = Object.values(months).map(m => m.label);
+            const cecosList    = Array.from(cecosSet);
+            const totalMensual = dataByMonth.reduce((a, b) => a + parseFloat(b.total_monto), 0);
+
+            renderStatRow('chart2-stats', [
+                { label: 'Total período',    value: fmtFull(totalMensual) },
+                { label: 'Meses analizados', value: monthLabels.length   },
+                { label: 'CECOs activos',    value: cecosList.length     },
+            ]);
+            renderLegend('chart2-legend', cecosList);
+
+            const datasets = cecosList.map((ceco, index) => ({
+                label: ceco,
+                data: Object.keys(months).map(k => months[k].data[ceco] || 0),
+                backgroundColor: PALETTE[index % PALETTE.length].soft,
+                borderColor:     PALETTE[index % PALETTE.length].solid,
+                borderWidth: 1.5,
+                borderRadius: 5,
+                borderSkipped: false,
+            }));
+
+            const chartByMonthCanvas = document.getElementById('chartByMonth');
+            if (!chartByMonthCanvas) { console.error('chartByMonth no encontrado'); return; }
+
+            if (window.chart2) window.chart2.destroy();
+            window.chart2 = new Chart(chartByMonthCanvas.getContext('2d'), {
+                type: 'bar',
+                data: { labels: monthLabels, datasets },
+                options: {
+                    layout: { padding: { top: 10 } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        datalabels: {
+                            anchor: 'end', align: 'top',
+                            color: '#1e293b',
+                            clamp: true, clip: false,
+                            display: ctx => ctx.dataset.data[ctx.dataIndex] > 0,
+                            font: { weight: '700', size: 10 },
+                            formatter: fmtMoney,
                         },
-                        font: {
-                            weight: '600',
-                            size: 11
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ' ' + ctx.dataset.label + ': ' + fmtFull(ctx.parsed.y)
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#334155', font: { weight: '600', size: 11 } }
                         },
-                        formatter: function(value) {
-                            if (value === 0) return '';
-                            // Formato compacto para números grandes (ej: 3.5M en vez de 3.500.000)
-                            if (value >= 1000000) return '$' + (value / 1000000).toFixed(1).replace('.0', '') + 'M';
-                            if (value >= 1000) return '$' + (value / 1000).toFixed(0) + 'k';
-                            return '$' + value.toLocaleString('es-ES');
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': $' + context.parsed.y.toLocaleString('es-ES');
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: false
-                    },
-                    y: {
-                        beginAtZero: true,
-                        stacked: false,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString('es-ES');
-                            }
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { color: '#64748b', font: { size: 11 }, callback: fmtMoney }
                         }
                     }
                 }
-            },
-            
-        });
+            });
         }
 
         // Inicializar gráficos cuando esté listo
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(initializeCharts, 50);
-            });
+            document.addEventListener('DOMContentLoaded', function() { setTimeout(initializeCharts, 50); });
         } else {
             setTimeout(initializeCharts, 50);
         }

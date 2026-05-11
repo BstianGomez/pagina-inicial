@@ -213,14 +213,15 @@
     .kpi-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; }
 
     .table-container { background: #fff; border-radius: 20px; border: 1px solid #e2e8f0; margin-top: 20px; }
-    .dona-layout { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 20px; }
-    .canvas-wrapper { position: relative; width: 180px; height: 180px; margin: auto; }
+    .dona-layout { display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .canvas-wrapper { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
     .total-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-    .total-box b { display: block; font-size: 28px; color: #1e293b; }
-    .total-box span { font-size: 11px; color: #64748b; text-transform: uppercase; }
+    .total-box b { display: block; font-size: 28px; color: inherit; line-height: 1.2; }
+    .total-box span { font-size: 11px; color: inherit; opacity: 0.7; text-transform: uppercase; font-weight: 700; }
 
-    .custom-legend { display: flex; flex-direction: column; gap: 12px; }
-    .legend-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .custom-legend { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 200px; max-width: 320px; }
+    .legend-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding-bottom: 8px; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
+    .legend-item:last-child { border-bottom: none; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
 
     .btn-export-white { display:flex; align-items:center; gap:8px; padding:12px 24px; background:#fff; color:#4f46e5; border:none; border-radius:12px; font-weight:800; cursor:pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s; }

@@ -1,196 +1,613 @@
 <x-auth-split-layout>
-    <div class="flex min-h-screen flex-col lg:flex-row">
-        <!-- Left Side: Information (Hidden on mobile) -->
-        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 items-center justify-center p-12 text-white relative overflow-hidden">
-            <!-- Background Decoration -->
-            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 30px 30px;"></div>
-            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
-            
-            <div class="relative z-10 max-w-lg">
-                <div class="mb-8 inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md">
-                    <div class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
-                    <span class="text-xs font-bold uppercase tracking-widest text-blue-100">Portal Unificado Fundación SOFOFA</span>
+    <style>
+        /* ── Reset viewport ─────────────────────────── */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* ── Root wrapper ───────────────────────────── */
+        .login-root {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* ── Left panel ─────────────────────────────── */
+        .login-left {
+            display: none;
+            width: 50%;
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 50%, #312e81 100%);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(1.5rem, 4vw, 3rem);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        /* ── Right panel ─────────────────────────────── */
+        .login-right {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            overflow-y: auto;
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: #fff;
+            border-radius: 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            box-shadow: 0 20px 60px -10px rgba(15,23,42,.08);
+        }
+
+        /* ── Logo box ─────────────────────────────────── */
+        .logo-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: clamp(0.75rem, 2vh, 1.5rem);
+        }
+        .logo-box-inner {
+            width: 180px;
+            height: 80px;
+            background: #fff;
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 24px rgba(15,23,42,.08);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Heading ─────────────────────────────────── */
+        .login-heading {
+            text-align: center;
+            margin-bottom: clamp(0.75rem, 2vh, 1.25rem);
+        }
+        .login-heading h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 900;
+            color: #0f172a;
+            margin: 0 0 .25rem;
+            letter-spacing: -0.03em;
+        }
+        .login-heading p {
+            font-size: clamp(.8rem, 1.5vw, 1rem);
+            color: #64748b;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* ── Form ────────────────────────────────────── */
+        .form-stack { display: flex; flex-direction: column; gap: .75rem; }
+
+        .field-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            margin-bottom: .4rem;
+        }
+        .input-wrap { position: relative; }
+        .input-icon {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            padding-left: 1rem;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+            color: #cbd5e1;
+        }
+        .field-input {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: .75rem 1rem .75rem 3rem;
+            border: 2px solid #f1f5f9;
+            border-radius: 1.25rem;
+            background: #f8fafc;
+            font-size: .9rem;
+            font-weight: 700;
+            color: #334155;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            font-family: inherit;
+        }
+        .field-input::placeholder { color: #cbd5e1; font-weight: 500; }
+        .field-input:focus {
+            border-color: rgba(59,130,246,.5);
+            box-shadow: 0 0 0 4px rgba(59,130,246,.08);
+        }
+
+        /* ── Remember / forgot ───────────────────────── */
+        .row-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+        }
+        .remember-label input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: #2563eb;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+        }
+        .forgot-link {
+            font-size: 12px;
+            font-weight: 900;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+
+        /* ── Submit button ───────────────────────────── */
+        .submit-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            padding: .9rem 1.5rem;
+            border: none;
+            border-radius: 1.25rem;
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 12px 32px -8px rgba(37,99,235,.45);
+            transition: transform .2s, box-shadow .2s, filter .2s;
+            font-family: inherit;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px -8px rgba(37,99,235,.55);
+            filter: brightness(1.05);
+        }
+        .submit-btn:active { transform: scale(.98); }
+
+        /* ── Quick access ────────────────────────────── */
+        .quick-section {
+            margin-top: clamp(.6rem, 1.5vh, 1rem);
+            padding-top: clamp(.6rem, 1.5vh, 1rem);
+            border-top: 1px solid #f1f5f9;
+        }
+        .quick-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: .6rem;
+        }
+        .quick-title {
+            font-size: 10px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+        }
+        .quick-badge {
+            font-size: 10px;
+            font-weight: 700;
+            color: #3b82f6;
+            background: #eff6ff;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: .5rem;
+        }
+        .quick-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: .6rem .25rem;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all .25s;
+            font-family: inherit;
+        }
+        .quick-btn:hover {
+            background: #fff;
+            border-color: rgba(59,130,246,.2);
+            box-shadow: 0 4px 16px rgba(59,130,246,.06);
+        }
+        .quick-icon {
+            width: 36px; height: 36px;
+            background: #fff;
+            border-radius: .75rem;
+            box-shadow: 0 2px 8px rgba(15,23,42,.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: .35rem;
+            transition: transform .2s;
+        }
+        .quick-btn:hover .quick-icon { transform: scale(1.1); }
+        .quick-name {
+            font-size: 10px;
+            font-weight: 900;
+            color: #0f172a;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .quick-email {
+            font-size: 9px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+            padding: 0 2px;
+        }
+
+        /* ── Footer ──────────────────────────────────── */
+        .login-footer {
+            text-align: center;
+            margin-top: clamp(.5rem, 1.5vh, .9rem);
+            font-size: 10px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+        }
+
+        /* ── Left panel decorations ───────────────────── */
+        .dot-grid {
+            position: absolute;
+            inset: 0;
+            opacity: .08;
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+        .blob-tr {
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 300px; height: 300px;
+            background: rgba(96,165,250,.1);
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+        .blob-bl {
+            position: absolute;
+            bottom: -60px; left: -60px;
+            width: 250px; height: 250px;
+            background: rgba(99,102,241,.1);
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+        .left-inner {
+            position: relative;
+            z-index: 10;
+            max-width: 480px;
+        }
+        .left-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .5rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            backdrop-filter: blur(8px);
+            margin-bottom: clamp(1rem, 3vh, 2rem);
+        }
+        .left-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #93c5fd;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; transform:scale(1); }
+            50%      { opacity:.6; transform:scale(.85); }
+        }
+        .left-badge-text {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            color: #bfdbfe;
+        }
+        .left-h2 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 0 0 clamp(.75rem, 2vh, 1.5rem);
+            letter-spacing: -.03em;
+            color: #fff;
+        }
+        .left-h2 span { color: #93c5fd; }
+        .left-desc {
+            font-size: clamp(.8rem, 1.4vw, 1rem);
+            color: rgba(191,219,254,.7);
+            line-height: 1.6;
+            margin: 0 0 clamp(1rem, 3vh, 2rem);
+        }
+        .feature-list { display: flex; flex-direction: column; gap: clamp(.6rem, 1.5vh, 1rem); }
+        .feature-item { display: flex; align-items: center; gap: 1rem; }
+        .feature-icon {
+            width: 44px; height: 44px;
+            border-radius: 1rem;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform .2s, background .2s;
+        }
+        .feature-item:hover .feature-icon {
+            transform: scale(1.1);
+            background: rgba(255,255,255,.2);
+        }
+        .feature-title {
+            font-size: clamp(.85rem, 1.3vw, 1rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 .1rem;
+        }
+        .feature-sub {
+            font-size: clamp(.7rem, 1vw, .8rem);
+            color: rgba(191,219,254,.6);
+            margin: 0;
+        }
+
+        /* ── Responsive breakpoints ───────────────────── */
+        @media (min-width: 1024px) {
+            .login-left  { display: flex; }
+            .login-right { width: 50%; }
+            .login-card  {
+                background: transparent;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+                max-width: 420px;
+            }
+        }
+
+        /* Small screens: compact spacing */
+        @media (max-height: 700px) {
+            .logo-box        { margin-bottom: .4rem; }
+            .logo-box-inner  { width: 140px; height: 60px; }
+            .login-heading   { margin-bottom: .4rem; }
+            .form-stack      { gap: .5rem; }
+            .field-input     { padding: .6rem 1rem .6rem 3rem; }
+            .submit-btn      { padding: .7rem 1.5rem; }
+            .quick-section   { margin-top: .4rem; padding-top: .4rem; }
+            .quick-icon      { width: 30px; height: 30px; }
+        }
+    </style>
+
+    <div class="login-root">
+
+        {{-- ══ LEFT PANEL ══════════════════════════════════ --}}
+        <div class="login-left">
+            <div class="dot-grid"></div>
+            <div class="blob-tr"></div>
+            <div class="blob-bl"></div>
+
+            <div class="left-inner">
+                <div class="left-badge">
+                    <div class="left-dot"></div>
+                    <span class="left-badge-text">Portal Unificado Fundación SOFOFA</span>
                 </div>
 
-                <h2 class="text-6xl font-extrabold leading-[1.1] mb-8 tracking-tight">
-                    Gestión Inteligente <br/>
-                    <span class="text-blue-300">en un solo lugar.</span>
+                <h2 class="left-h2">
+                    Gestión Inteligente<br>
+                    <span>en un solo lugar.</span>
                 </h2>
-                <p class="text-xl text-blue-100/70 mb-12 leading-relaxed">
-                    Acceda de forma segura a todos los módulos operativos: Órdenes de Compra, Gestión de Viajes y Rendición de Gastos. Optimizado para un flujo de trabajo ágil.
+
+                <p class="left-desc">
+                    Acceda de forma segura a todos los módulos operativos:
+                    Órdenes de Compra, Gestión de Viajes y Rendición de Gastos.
+                    Optimizado para un flujo de trabajo ágil.
                 </p>
-                
-                <div class="space-y-6">
-                    <div class="flex items-center gap-5 group">
-                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 transition-all group-hover:scale-110 group-hover:bg-white/20">
-                            <svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" fill="none" stroke="#93c5fd" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-bold text-white">Máxima Agilidad</h4>
-                            <p class="text-sm text-blue-100/60">Aprobaciones y flujos en tiempo real</p>
+                            <p class="feature-title">Máxima Agilidad</p>
+                            <p class="feature-sub">Aprobaciones y flujos en tiempo real</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-5 group">
-                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 transition-all group-hover:scale-110 group-hover:bg-white/20">
-                            <svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" fill="none" stroke="#93c5fd" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-bold text-white">Seguridad Centralizada</h4>
-                            <p class="text-sm text-blue-100/60">Control total de accesos y auditoría</p>
+                            <p class="feature-title">Seguridad Centralizada</p>
+                            <p class="feature-sub">Control total de accesos y auditoría</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-5 group">
-                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 transition-all group-hover:scale-110 group-hover:bg-white/20">
-                            <svg class="w-6 h-6 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg width="22" height="22" fill="none" stroke="#93c5fd" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                            </svg>
                         </div>
                         <div>
-                            <h4 class="text-lg font-bold text-white">Visibilidad 360°</h4>
-                            <p class="text-sm text-blue-100/60">Análisis y reportes automáticos</p>
+                            <p class="feature-title">Visibilidad 360°</p>
+                            <p class="feature-sub">Análisis y reportes automáticos</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Side: Login Form -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 bg-[#f8fafc] lg:bg-white">
-            <div class="w-full max-w-md bg-white p-8 lg:p-0 rounded-[2.5rem] shadow-xl shadow-slate-200/50 lg:shadow-none lg:rounded-none">
-                <!-- Logo -->
-                <div class="flex justify-center mb-8">
-                    <div class="p-5 bg-white rounded-[1.5rem] shadow-xl shadow-slate-200/40 border border-slate-100 flex items-center justify-center" style="width: 200px; height: 100px;">
+        {{-- ══ RIGHT PANEL ═════════════════════════════════ --}}
+        <div class="login-right">
+            <div class="login-card">
+
+                {{-- Logo --}}
+                <div class="logo-box">
+                    <div class="logo-box-inner">
                         <x-application-logo />
                     </div>
                 </div>
 
-                <div class="text-center mb-10">
-                    <h1 class="text-5xl font-black text-slate-900 mb-3 tracking-tight">Bienvenido</h1>
-                    <p class="text-slate-500 font-bold text-lg">Ingresa tus credenciales para continuar</p>
+                {{-- Heading --}}
+                <div class="login-heading">
+                    <h1>Bienvenido</h1>
+                    <p>Ingresa tus credenciales para continuar</p>
                 </div>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                <form method="POST" action="{{ route('login') }}" class="form-stack">
                     @csrf
 
-                    <!-- Email Address -->
+                    {{-- Email --}}
                     <div>
-                        <label for="email" class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Correo Electrónico</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
-                                <svg class="h-5 w-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"></path></svg>
-                            </div>
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="usuario@empresa.cl" class="block w-full pl-14 pr-6 py-4 border-2 border-slate-100 rounded-[1.5rem] leading-5 bg-slate-50/50 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-slate-700">
+                        <label for="email" class="field-label">Correo Electrónico</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206"/>
+                                </svg>
+                            </span>
+                            <input id="email" type="email" name="email" class="field-input"
+                                   value="{{ old('email') }}" required autofocus
+                                   placeholder="usuario@empresa.cl">
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-1" />
                     </div>
 
-                    <!-- Password -->
+                    {{-- Password --}}
                     <div>
-                        <label for="password" class="block text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2.5 ml-1">Contraseña</label>
-                        <div class="relative group">
-                            <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
-                                <svg class="h-5 w-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            </div>
-                            <input id="password" type="password" name="password" required placeholder="••••••••" class="block w-full pl-14 pr-6 py-4 border-2 border-slate-100 rounded-[1.5rem] leading-5 bg-slate-50/50 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-slate-700">
+                        <label for="password" class="field-label">Contraseña</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </span>
+                            <input id="password" type="password" name="password" class="field-input"
+                                   required placeholder="••••••••">
                         </div>
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('password')" class="mt-1" />
                     </div>
 
-                    <!-- Remember Me -->
-                    <div class="flex items-center justify-between px-1">
-                        <label class="flex items-center cursor-pointer group">
-                            <input type="checkbox" name="remember" class="rounded-lg border-2 border-slate-200 text-blue-600 shadow-sm focus:ring-blue-500/20 w-5 h-5 transition-all group-hover:border-blue-400">
-                            <span class="ml-3 text-[13px] text-slate-500 font-bold transition-colors group-hover:text-slate-700">Mantener sesión</span>
+                    {{-- Remember / Forgot --}}
+                    <div class="row-between">
+                        <label class="remember-label">
+                            <input type="checkbox" name="remember">
+                            Mantener sesión
                         </label>
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-[13px] font-black text-blue-600 hover:text-blue-700 transition-all hover:underline decoration-2 underline-offset-4">Recuperar acceso</a>
+                            <a href="{{ route('password.request') }}" class="forgot-link">Recuperar acceso</a>
                         @endif
                     </div>
 
-                    <div class="pt-4">
-                        <button type="submit" class="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-[1.5rem] shadow-[0_20px_40px_-12px_rgba(37,99,235,0.4)] text-lg font-black text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all transform hover:-translate-y-1 active:scale-[0.98]">
-                            <span>Iniciar Sesión</span>
-                            <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </button>
-                    </div>
+                    {{-- Submit --}}
+                    <button type="submit" class="submit-btn">
+                        <span>Iniciar Sesión</span>
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </button>
                 </form>
 
-                <!-- Quick Access Section -->
-                <div class="mt-6 pt-6 border-t border-slate-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <p class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Acceso Rápido</p>
-                        <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">Pass: password123</span>
+                {{-- Quick Access --}}
+                <div class="quick-section">
+                    <div class="quick-header">
+                        <span class="quick-title">Acceso Rápido</span>
+                        <span class="quick-badge">Pass: password123</span>
                     </div>
-                    
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <button type="button" onclick="quickLogin('oc@example.com', 'password123')" 
-                            class="flex flex-col items-center p-3 sm:p-4 rounded-[1.25rem] bg-slate-50/50 border-2 border-transparent hover:border-blue-500/20 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 group">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    <div class="quick-grid">
+                        <button type="button" class="quick-btn" onclick="quickLogin('oc@example.com','password123')">
+                            <div class="quick-icon">
+                                <svg width="18" height="18" fill="none" stroke="#3b82f6" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
                             </div>
-                            <span class="text-[11px] font-black text-slate-900 mb-0.5 text-center">Módulo OC</span>
-                            <span class="text-[9px] text-slate-400 font-bold truncate w-full px-1 text-center">oc@example.com</span>
+                            <span class="quick-name">Módulo OC</span>
+                            <span class="quick-email">oc@example.com</span>
                         </button>
-
-                        <button type="button" onclick="quickLogin('viajes@example.com', 'password123')" 
-                            class="flex flex-col items-center p-3 sm:p-4 rounded-[1.25rem] bg-slate-50/50 border-2 border-transparent hover:border-blue-500/20 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 group">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        <button type="button" class="quick-btn" onclick="quickLogin('viajes@example.com','password123')">
+                            <div class="quick-icon">
+                                <svg width="18" height="18" fill="none" stroke="#6366f1" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                                </svg>
                             </div>
-                            <span class="text-[11px] font-black text-slate-900 mb-0.5 text-center">Viajes</span>
-                            <span class="text-[9px] text-slate-400 font-bold truncate w-full px-1 text-center">viajes@example.com</span>
+                            <span class="quick-name">Viajes</span>
+                            <span class="quick-email">viajes@example.com</span>
                         </button>
-                        
-                        <button type="button" onclick="quickLogin('rendicion@example.com', 'password123')" 
-                            class="flex flex-col items-center p-3 sm:p-4 rounded-[1.25rem] bg-slate-50/50 border-2 border-transparent hover:border-emerald-500/20 hover:bg-white hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 group">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        <button type="button" class="quick-btn" onclick="quickLogin('rendicion@example.com','password123')">
+                            <div class="quick-icon">
+                                <svg width="18" height="18" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
                             </div>
-                            <span class="text-[11px] font-black text-slate-900 mb-0.5 text-center">Rendición</span>
-                            <span class="text-[9px] text-slate-400 font-bold truncate w-full px-1 text-center">rendicion@example.com</span>
+                            <span class="quick-name">Rendición</span>
+                            <span class="quick-email">rendicion@example.com</span>
                         </button>
-
-                        <button type="button" onclick="quickLogin('multi2@example.com', 'password123')" 
-                            class="flex flex-col items-center p-3 sm:p-4 rounded-[1.25rem] bg-slate-50/50 border-2 border-transparent hover:border-amber-500/20 hover:bg-white hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                        <button type="button" class="quick-btn" onclick="quickLogin('multi2@example.com','password123')">
+                            <div class="quick-icon">
+                                <svg width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
                             </div>
-                            <span class="text-[11px] font-black text-slate-900 mb-0.5 text-center">Admin Total</span>
-                            <span class="text-[9px] text-slate-400 font-bold truncate w-full px-1 text-center">multi2@example.com</span>
+                            <span class="quick-name">Admin Total</span>
+                            <span class="quick-email">multi2@example.com</span>
                         </button>
                     </div>
                 </div>
 
-                <script>
-                    function quickLogin(email, password) {
-                        const emailInput = document.getElementById('email');
-                        const passwordInput = document.getElementById('password');
-
-                        emailInput.value = email;
-                        passwordInput.value = password;
-
-                        // Add a small visual feedback
-                        emailInput.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-500/50');
-                        passwordInput.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-500/50');
-                        
-                        setTimeout(() => {
-                            emailInput.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-500/50');
-                            passwordInput.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-500/50');
-                        }, 1000);
-
-                        // Focus the email input
-                        emailInput.focus();
-                    }
-                </script>
-
-                <!-- Support Footer -->
-                <div class="mt-6 text-center">
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                        Fundación SOFOFA &copy; {{ date('Y') }}
-                    </p>
+                {{-- Footer --}}
+                <div class="login-footer">
+                    Fundación SOFOFA &copy; {{ date('Y') }}
                 </div>
+
             </div>
         </div>
     </div>
+
+    <script>
+        function quickLogin(email, password) {
+            const emailInput    = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            emailInput.value    = email;
+            passwordInput.value = password;
+            emailInput.style.borderColor    = 'rgba(59,130,246,.5)';
+            passwordInput.style.borderColor = 'rgba(59,130,246,.5)';
+            setTimeout(() => {
+                emailInput.style.borderColor    = '';
+                passwordInput.style.borderColor = '';
+            }, 1000);
+            emailInput.focus();
+        }
+    </script>
 </x-auth-split-layout>

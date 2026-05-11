@@ -45,7 +45,7 @@ Route::middleware('auth')->group(function () {
             return redirect(
                 $app === 'oc' ? '/oc/oc' :
                 ($app === 'viajes' ? '/viajes/mis-solicitudes' :
-                ($app === 'rendicion' ? '/rendicion/informes' : '/app-redirect'))
+                ($app === 'rendicion' ? '/rendicion/dashboard' : '/app-redirect'))
             );
         }
 
@@ -60,17 +60,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/force-logout', [LogoutController::class, 'forceLogout'])->name('force-logout');
 
     // Rutas para las apps subidas
-    Route::get('/oc/dashboard', function () {
-        return view('oc.dashboard');
-    })->name('oc.dashboard');
-
-    Route::get('/viajes/mis-solicitudes', function () {
-        return view('mis-solicitudes');
-    })->name('viajes.mis-solicitudes');
-
-    Route::get('/rendicion/dashboard', function () {
-        return view('dashboard');
-    })->name('rendicion.dashboard');
+    // NOTA: oc.dashboard, viajes.mis-solicitudes y rendicion.dashboard
+    // se definen en sus respectivos archivos de rutas (oc.php, viajes.php, rendicion.php)
+    // Las siguientes son solo aliases de conveniencia sin nombre para evitar conflictos:
 
     // ...otras rutas originales...
 
