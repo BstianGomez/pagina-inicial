@@ -51,6 +51,33 @@ class OcEnviadasController extends Controller
     }
 
     /**
+     * Get details for a specific OC enviada.
+     */
+    public function show($id)
+    {
+        $oc = DB::table('oc_enviadas')
+            ->leftJoin('oc_solicitudes', 'oc_solicitudes.id', '=', 'oc_enviadas.oc_solicitud_id')
+            ->select(
+                'oc_enviadas.*',
+                'oc_solicitudes.tipo_solicitud',
+                'oc_solicitudes.tipo_documento',
+                'oc_solicitudes.created_at as solicitud_fecha',
+                'oc_solicitudes.datos_extra'
+            )
+            ->where('oc_enviadas.id', $id)
+            ->first();
+
+        if (!$oc) {
+            return response()->json(['success' => false, 'message' => 'No encontrada'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $oc
+        ]);
+    }
+
+    /**
      * Download PDF for a specific OC enviada.
      */
     public function downloadPdf($id)

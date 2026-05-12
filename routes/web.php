@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('app-redirect');
+    }
     return redirect('/login');
 });
 
@@ -23,30 +26,36 @@ Route::middleware('auth')->group(function () {
     Route::get('/app-redirect', function () {
         $user = auth()->user();
         
-        $apps = $user->assigned_apps ?? $user->assigned_app ?? [];
-        if (is_string($apps)) {
-            $decoded = json_decode($apps, true);
-            $apps = is_array($decoded) ? $decoded : [$apps];
+        $appsData = $user->assigned_apps ?? $user->assigned_app ?? [];
+        $apps = [];
+        if (is_string($appsData)) {
+            $decoded = json_decode($appsData, true);
+            $apps = is_array($decoded) ? $decoded : [$appsData];
+        } else {
+            $apps = (array) $appsData;
         }
+        $apps = array_filter($apps);
 
-        // Si es Superadmin y por alguna razón no tiene apps, le mostramos todas
+        // Si es Superadmin y no tiene apps, le mostramos todas
         if ($user->isSuperAdmin() && empty($apps)) {
             $apps = ['oc', 'viajes', 'rendicion'];
         }
 
-        if (!$apps || count($apps) === 0) {
-            abort(403, 'No tienes aplicaciones asignadas.');
+        if (empty($apps)) {
+            abort(403, 'Tu cuenta no tiene aplicaciones asignadas. Contacta al administrador.');
         }
 
         // Redirección automática si tiene una sola app y NO es Superadmin
-        // (Los Admins ahora se redireccionan también porque ya no ven el Panel Admin)
         if (count($apps) === 1 && !$user->isSuperAdmin()) {
             $app = $apps[0];
-            return redirect(
-                $app === 'oc' ? '/oc/oc' :
-                ($app === 'viajes' ? '/viajes/mis-solicitudes' :
-                ($app === 'rendicion' ? '/rendicion/dashboard' : '/app-redirect'))
-            );
+            $target = match($app) {
+                'oc' => route('oc.dashboard'),
+                'viajes' => route('viajes.mis-solicitudes'),
+                'rendicion' => route('rendicion.dashboard'),
+                default => null,
+            };
+            
+            if ($target) return redirect($target);
         }
 
         // Mostrar selección si tiene más de una app o es Superadmin

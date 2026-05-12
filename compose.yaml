@@ -6,6 +6,7 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: 'sail-8.5/app'
+        container_name: pagina-inicial
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -21,6 +22,7 @@ services:
             - '.:/var/www/html'
         networks:
             - sail
+            - nginx-proxy
         depends_on:
             - mysql
             - redis
@@ -104,6 +106,8 @@ services:
 networks:
     sail:
         driver: bridge
+    nginx-proxy:
+        external: true
 volumes:
     sail-mysql:
         driver: local

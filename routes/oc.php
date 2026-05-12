@@ -896,6 +896,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas de OC enviadas (protegidas)
     Route::get('/enviadas', [OcEnviadasController::class, 'index'])->name('enviadas');
+    Route::get('/enviadas/{id}', [OcEnviadasController::class, 'show'])->name('enviadas.show');
     Route::get('/enviadas/{id}/pdf', [OcEnviadasController::class, 'downloadPdf'])->name('enviadas.pdf');
     Route::post('/send', [OcEnviadasController::class, 'store'])->name('send');
     Route::post('/enviadas/{id}/send', [OcEnviadasController::class, 'sendEmail'])->name('enviadas.sendEmail');
