@@ -66,7 +66,7 @@
                 @csrf
                 <input type="hidden" name="action" value="submit">
                 <button type="submit" id="btn-next"
-                   class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-sofofa-blue text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-sofofa-blue-dark active:scale-95 transition-all">
+                   class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:bg-blue-700 active:scale-95 transition-all">
                     Enviar Rendición
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>

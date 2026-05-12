@@ -109,6 +109,29 @@
             transform: translateY(-1px);
         }
 
+        .cfg-btn-new {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            border-radius: 10px;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #ffffff;
+            background: linear-gradient(135deg, #0b5fa5 0%, #0f6bb6 100%);
+            box-shadow: 0 4px 10px rgba(15, 107, 182, 0.3);
+            border: none;
+            cursor: pointer;
+            transition: all 140ms ease;
+        }
+
+        .cfg-btn-new:hover {
+            background: linear-gradient(135deg, #0a4f86 0%, #0b5fa5 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(15, 107, 182, 0.4);
+        }
+
         .cfg-row-actions {
             display: inline-flex;
             align-items: center;
@@ -266,9 +289,9 @@
                     <svg class="h-5 w-5 mr-3 text-sofofa-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     Categorías de Gastos
                 </h3>
-                <button onclick="openCategoryModal()" class="inline-flex items-center text-xs font-bold text-white bg-sofofa-blue hover:bg-sofofa-blue-dark px-3 py-1.5 rounded-xl transition-all shadow-md">
-                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Nueva
+                <button onclick="openCategoryModal()" class="cfg-btn-new">
+                    <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    NUEVA
                 </button>
             </div>
             
@@ -326,9 +349,9 @@
                     <svg class="h-5 w-5 mr-3 text-sofofa-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                     Centros de Costos (CECO)
                 </h3>
-                <button onclick="openCecoModal()" class="inline-flex items-center text-xs font-bold text-white bg-sofofa-blue hover:bg-sofofa-blue-dark px-3 py-1.5 rounded-xl transition-all shadow-md">
-                    <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Nuevo
+                <button onclick="openCecoModal()" class="cfg-btn-new">
+                    <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    NUEVO
                 </button>
             </div>
             

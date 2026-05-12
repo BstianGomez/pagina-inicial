@@ -8,13 +8,12 @@
             <div class="p-8 border-b border-slate-100 bg-slate-50/50">
                 <div class="flex items-center justify-between mb-8">
                     <div class="flex items-center space-x-4">
-                        <a href="{{ route('rendicion.expenses.createStep2', $report->id) }}" title="Volver al paso 1"
-                           style="display:flex;align-items:center;justify-content:center;height:2.5rem;width:2.5rem;border-radius:9999px;background:#22c55e;color:#fff;font-weight:700;text-decoration:none;flex-shrink:0;"
-                           onmouseover="this.style.background='#16a34a'" onmouseout="this.style.background='#22c55e'">
+                        <a href="javascript:void(0)" title="Paso 1 actual"
+                           style="display:flex;align-items:center;justify-content:center;height:2.5rem;width:2.5rem;border-radius:9999px;background:#0f6bb6;color:#fff;font-weight:800;text-decoration:none;flex-shrink:0;font-size:0.95rem;cursor:default;">
                             1
                         </a>
-                        <div class="h-1 w-20 bg-emerald-500 rounded"></div>
-                        <div class="h-10 w-10 rounded-full bg-sofofa-blue text-white flex items-center justify-center font-bold">2</div>
+                        <div style="height:0.25rem;width:5rem;border-radius:9999px;flex-shrink:0;background:#e2e8f0;"></div>
+                        <div style="display:flex;align-items:center;justify-content:center;height:2.5rem;width:2.5rem;border-radius:9999px;background:#f1f5f9;color:#94a3b8;font-weight:800;font-size:0.95rem;flex-shrink:0;">2</div>
                     </div>
                     <span class="text-sm font-medium text-slate-500">Paso 2 de 2</span>
                 </div>

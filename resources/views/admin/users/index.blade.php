@@ -314,20 +314,30 @@
             }
 
             /* ===== DARK MODE ===== */
+            html.dark {
+                --primary: #818cf8;
+                --primary-hover: #6366f1;
+                --bg-page: #0f172a;
+                --card-bg: #1e293b;
+                --text-main: #f1f5f9;
+                --text-muted: #94a3b8;
+                --border-color: #334155;
+            }
+
             html.dark body {
-                background-color: #0f172a;
-                color: #f1f5f9;
+                background-color: var(--bg-page);
+                color: var(--text-main);
             }
 
             html.dark .main-card {
-                background: #1e293b;
-                border-color: #334155;
+                background: var(--card-bg);
+                border-color: var(--border-color);
             }
 
             html.dark .table-sofofa th {
                 background: #0f172a;
-                color: #94a3b8;
-                border-bottom-color: #334155;
+                color: var(--text-muted);
+                border-bottom-color: var(--border-color);
             }
 
             html.dark .table-sofofa td {
@@ -342,13 +352,13 @@
 
             html.dark .btn-icon {
                 background: #1e293b;
-                border-color: #334155;
-                color: #94a3b8;
+                border-color: var(--border-color);
+                color: var(--text-muted);
             }
 
             html.dark .btn-icon:hover {
-                border-color: #818cf8;
-                color: #818cf8;
+                border-color: var(--primary);
+                color: var(--primary);
                 background: #1e293b;
             }
 
@@ -359,31 +369,31 @@
             }
 
             html.dark [style*="background: white"] {
-                background: #1e293b !important;
-                border-color: #334155 !important;
-                color: #f1f5f9 !important;
+                background: var(--card-bg) !important;
+                border-color: var(--border-color) !important;
+                color: var(--text-main) !important;
             }
 
             html.dark input,
             html.dark select,
             html.dark .input-premium {
                 background: #0f172a !important;
-                border-color: #334155 !important;
-                color: #f1f5f9 !important;
+                border-color: var(--border-color) !important;
+                color: var(--text-main) !important;
             }
 
             html.dark .modal-premium {
-                background: #1e293b;
+                background: var(--card-bg);
             }
 
             html.dark .modal-footer-premium {
-                border-top-color: #334155;
+                border-top-color: var(--border-color);
             }
 
             html.dark .checkbox-tile {
                 background: #0f172a;
-                border-color: #334155;
-                color: #f1f5f9;
+                border-color: var(--border-color);
+                color: var(--text-main);
             }
 
             html.dark .checkbox-tile:hover {
@@ -395,23 +405,23 @@
             }
 
             html.dark .btn-cancel-premium {
-                color: #94a3b8;
+                color: var(--text-muted);
             }
 
             html.dark .btn-cancel-premium:hover {
                 background: #334155;
-                color: #f1f5f9;
+                color: var(--text-main);
             }
 
             /* Filters bar */
             html.dark [style*="background: white; border-radius: 20px"] {
-                background: #1e293b !important;
-                border-color: #334155 !important;
+                background: var(--card-bg) !important;
+                border-color: var(--border-color) !important;
             }
 
             /* Pagination & misc */
             html.dark [style*="border-top: 1px solid #f1f5f9"] {
-                border-color: #334155 !important;
+                border-color: var(--border-color) !important;
             }
         </style>
     </head>

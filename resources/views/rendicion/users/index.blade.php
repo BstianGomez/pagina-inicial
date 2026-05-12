@@ -433,7 +433,7 @@
             document.getElementById('user-email').value = user.email;
             document.getElementById('user-password').value = '';
             document.getElementById('user-password').required = false;
-            document.getElementById('password-section').classList.add('hidden');
+            document.getElementById('password-section').classList.remove('hidden');
             document.getElementById('user-role').value = user.roles[0] ? user.roles[0].name : '';
 
             const assignedApps = Array.isArray(user.assigned_apps)
@@ -469,7 +469,7 @@
                 document.getElementById('user-form').action = `/rendicion/usuarios/${editingUserId}`;
                 document.getElementById('form-method').value = 'PUT';
                 document.getElementById('user-password').required = false;
-                document.getElementById('password-section').classList.add('hidden');
+                document.getElementById('password-section').classList.remove('hidden');
                 document.getElementById('submit-btn').innerText = 'Actualizar Datos';
                 document.getElementById('user-modal').classList.remove('hidden');
             } else if (hasErrors) {

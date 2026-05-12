@@ -7,7 +7,7 @@ use App\Models\Rendicion\Ceco;
 use App\Models\Rendicion\Expense;
 use App\Models\Rendicion\Report;
 use App\Models\User;
-use App\Mail\ReportStatusChanged;
+use App\Mail\Rendicion\ReportStatusChanged;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -224,7 +224,7 @@ class ReportController extends Controller
             'total_amount' => 0,
         ]);
 
-        return redirect()->route('expenses.createStep1', ['report' => $report->id]);
+        return redirect()->route('rendicion.expenses.createStep1', ['report' => $report->id]);
     }
 
     public function createStep1(Report $report)
@@ -267,7 +267,7 @@ class ReportController extends Controller
         // "Continuar" from Step 1 should always move to Step 2 (expense selection).
         if ($request->input('action') !== 'draft') {
             return redirect()
-                ->route('expenses.createStep2', ['report' => $report->id])
+                ->route('rendicion.expenses.createStep2', ['report' => $report->id])
                 ->with('success', 'Información general guardada. Continúe con la selección de gastos.');
         }
 
@@ -277,7 +277,7 @@ class ReportController extends Controller
 
         if (!$isDraft && $report->expenses()->where('amount', '<=', 0)->exists()) {
             return redirect()
-                ->route('expenses.createStep2', ['report' => $report->id])
+                ->route('rendicion.expenses.createStep2', ['report' => $report->id])
                 ->with('error', 'No se puede enviar la solicitud con monto 0. Complete un monto mayor a 0 en todos los gastos.');
         }
 
@@ -315,7 +315,7 @@ class ReportController extends Controller
 
         $message = $isDraft ? 'Rendición guardada como borrador.' : 'Rendición enviada correctamente.';
 
-        return redirect()->route('dashboard')->with('success', $message);
+        return redirect()->route('rendicion.dashboard')->with('success', $message);
     }
 
     public function createStep2(Report $report)
@@ -436,8 +436,8 @@ class ReportController extends Controller
             ]);
 
             return redirect()
-                ->route('expenses.createStep2', ['report' => $report->id])
-                ->with('success', 'Rendición guardada como borrador.');
+                ->route('rendicion.expenses.createStep2', ['report' => $report->id])
+                ->with('success', 'Reporte guardado. Puede continuar agregando gastos.');
         }
 
         $nextStatus = match ($report->status) {
@@ -465,7 +465,7 @@ class ReportController extends Controller
 
         $this->notifyReportStatusChanged($report, $comment, $rolesToNotify);
 
-        return redirect()->route('dashboard')->with('success', 'Rendición enviada correctamente.');
+        return redirect()->route('rendicion.dashboard')->with('success', 'Rendición enviada correctamente.');
     }
 
     public function approve(Request $request, Report $report)
@@ -696,7 +696,7 @@ class ReportController extends Controller
             'attachment_path' => null,
         ]);
 
-        return redirect()->route('expenses.edit', $expense)->with('success', 'Categoría seleccionada. Ahora completa los detalles del gasto.');
+        return redirect()->route('rendicion.expenses.edit', $expense)->with('success', 'Categoría seleccionada. Ahora completa los detalles del gasto.');
     }
 
     public function updateExpenseValidation(Request $request, Expense $expense)
@@ -738,7 +738,7 @@ class ReportController extends Controller
             $report->expenses()->delete();
             $report->comments()->delete();
             $report->delete();
-            return redirect()->route('reports.index')->with('success', 'Informe eliminado correctamente.');
+            return redirect()->route('rendicion.reports.index')->with('success', 'Informe eliminado correctamente.');
         }
 
     public function destroyExpense(Expense $expense)
@@ -864,9 +864,19 @@ class ReportController extends Controller
             $recipients->push($report->user->email);
         }
 
-        // Notify specified roles
-        if (!empty($rolesToNotify)) {
-            $roleEmails = User::role($rolesToNotify)
+        // If 'Solicitante' was requested, ensure the owner is included
+        if (in_array('Solicitante', $rolesToNotify) && $report->user->email) {
+            $recipients->push($report->user->email);
+        }
+
+        // Filter out pseudo-roles that don't exist in the database for Spatie
+        $spatieRoles = array_values(array_filter($rolesToNotify, function ($role) {
+            return strtolower($role) !== 'solicitante';
+        }));
+
+        // Notify specified Spatie roles
+        if (!empty($spatieRoles)) {
+            $roleEmails = User::role($spatieRoles)
                 ->whereNotNull('email')
                 ->where('id', '!=', auth()->id())
                 ->pluck('email');
@@ -890,8 +900,8 @@ class ReportController extends Controller
             Report::STATUS_PENDING_MANAGER_APPROVAL,
             Report::STATUS_RESUBMITTED_BY_REQUESTER_MANAGER,
         ], true)) {
-            $approveUrl = URL::temporarySignedRoute('reports.approve.signed', now()->addDays(7), ['report' => $report->id]);
-            $rejectUrl = URL::temporarySignedRoute('reports.reject.signed', now()->addDays(7), ['report' => $report->id]);
+            $approveUrl = URL::temporarySignedRoute('rendicion.reports.approve.signed', now()->addDays(7), ['report' => $report->id]);
+            $rejectUrl = URL::temporarySignedRoute('rendicion.reports.reject.signed', now()->addDays(7), ['report' => $report->id]);
         }
 
         foreach ($uniqueRecipients as $email) {

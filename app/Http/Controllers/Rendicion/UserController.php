@@ -75,6 +75,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8',
             'role' => 'required|exists:roles,name',
             'has_fixed_fund' => 'required|boolean',
             'fixed_fund_amount' => 'nullable|required_if:has_fixed_fund,1|numeric|gt:0',
@@ -84,14 +85,20 @@ class UserController extends Controller
             return back()->with('error', 'No tienes permisos para asignar ese rol.');
         }
 
-        $user->update([
+        $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
             'rol' => $validated['role'],
             'has_fixed_fund' => (bool) $validated['has_fixed_fund'],
             'fixed_fund_amount' => (bool) $validated['has_fixed_fund'] ? $validated['fixed_fund_amount'] : 0,
-        ]);
+        ];
+
+        if (!empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($updateData);
 
         $user->syncRoles([$validated['role']]);
 

@@ -785,8 +785,8 @@
                                     </div>
                                     <div>
                                         <div class="flex flex-wrap items-center gap-2 mb-2">
-                                            <span class="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black rounded uppercase tracking-tighter">{{ $expense->ceco->code }}</span>
-                                            <span class="px-2 py-0.5 bg-blue-100 text-sofofa-blue text-[9px] font-black rounded uppercase tracking-tighter">{{ $expense->category->name }}</span>
+                                            <span class="px-2 py-0.5 bg-slate-900 text-white text-[9px] font-black rounded uppercase tracking-tighter">{{ $expense->ceco->code ?? 'SIN CECO' }}</span>
+                                            <span class="px-2 py-0.5 bg-blue-100 text-sofofa-blue text-[9px] font-black rounded uppercase tracking-tighter">{{ $expense->category->name ?? 'SIN CATEGORÍA' }}</span>
                                         </div>
                                         <h5 class="text-lg font-bold text-slate-800">{{ $expense->provider_name }}</h5>
                                         <p class="text-xs text-slate-500 font-medium">RUT: {{ $expense->provider_rut }} | {{ $expense->description }}</p>
@@ -899,11 +899,15 @@
         <!-- Sidebar / Actions (Right) -->
         <div class="report-side w-full space-y-6">
             @php $isAdmin = auth()->user()->hasAnyRole(['Admin', 'Superadmin', 'Super Admin']); @endphp
-            <!-- Panel Solicitante: Borrador / Anular -->
+            <!-- Panel Solicitante: Editar / Anular -->
             @if(auth()->id() === $report->user_id || auth()->user()->hasAnyRole(['Admin', 'Superadmin', 'Super Admin']))
-            @if($report->status === \App\Models\Rendicion\Report::STATUS_DRAFT)
+            @if($report->isEditableByRequester())
             <div class="report-panel bg-white rounded-3xl border-2 border-slate-100 p-6 shadow-sm space-y-3">
                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center mb-4">Acciones del Solicitante</p>
+                <a href="{{ route('rendicion.expenses.createStep1', $report) }}" class="report-action-btn report-action-btn-primary" style="background: linear-gradient(135deg, #0f6bb6 0%, #1488db 100%); color: white; border: none; box-shadow: 0 14px 24px -16px rgba(20, 136, 219, 0.75);">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    Continuar Edición
+                </a>
                 <form method="POST" action="{{ route('rendicion.reports.cancel', $report) }}" onsubmit="return confirm('¿Anular este informe? Esta acción no se puede deshacer.')">
                     @csrf
                     <button type="submit" class="report-action-btn report-action-btn-neutral">
@@ -1087,9 +1091,11 @@
 
                 <div class="reject-modal-footer">
                     <button type="button" onclick="closeRejectModal()" class="reject-modal-cancel">Volver</button>
-                    <button type="submit" formaction="{{ route('rendicion.reports.approve', $report) }}" formmethod="POST" formnovalidate class="reject-modal-accept">Aceptar Solicitud</button>
                     <button type="submit" class="reject-modal-submit">Rechazar Rendición</button>
                 </div>
+            </form>
+        </div>
+    </div>
             <!-- Modal de Observación (Solicitar Corrección) -->
     <div id="observe-modal" class="{{ $errors->has('comment') && old('_modal') === 'observe' ? '' : 'hidden' }} fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-[2rem] shadow-2xl max-w-md w-full relative border border-slate-100 overflow-hidden transform transition-all">

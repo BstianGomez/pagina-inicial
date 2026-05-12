@@ -10,7 +10,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect('/mis-solicitudes');
+            return redirect()->route('viajes.mis-solicitudes');
         }
         return view('viajes.auth.login');
     }
@@ -24,7 +24,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/mis-solicitudes');
+            return redirect()->intended(route('viajes.mis-solicitudes'));
         }
 
         return back()->withErrors([
@@ -37,6 +37,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }

@@ -92,28 +92,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/gestor', function (Request $request) {
         $query = DB::table('oc_solicitudes');
         $sort = $request->input('sort', 'newest');
+        $estado = $request->input('estado');
             
-        if ($request->input('vista') === 'historial') {
-            $query->where('estado', '!=', 'Solicitada')
-                  ->where('estado', '!=', 'Aceptada');
-            
-            if ($sort === 'oldest') {
-                $query->orderBy('updated_at')->orderBy('id');
-            } else {
-                $query->orderByDesc('updated_at')->orderByDesc('id');
-            }
+        if ($estado) {
+            $query->where('estado', $estado);
         } else {
             // Por defecto: mostrar Solicitadas Y Aceptadas
             $query->where(function($q) {
                 $q->where('estado', 'Solicitada')
                   ->orWhere('estado', 'Aceptada');
             });
+        }
 
-            if ($sort === 'oldest') {
-                $query->orderBy('created_at')->orderBy('id');
-            } else {
-                $query->orderByDesc('created_at')->orderByDesc('id');
-            }
+        // Ordenamiento
+        if ($sort === 'oldest') {
+            $query->orderBy('created_at')->orderBy('id');
+        } else {
+            $query->orderByDesc('created_at')->orderByDesc('id');
         }
 
         if ($request->filled('search')) {
@@ -122,7 +117,7 @@ Route::middleware(['auth'])->group(function () {
                 $q->where('descripcion', 'like', "%{$search}%")
                   ->orWhere('proveedor', 'like', "%{$search}%")
                   ->orWhere('ceco', 'like', "%{$search}%")
-                  ->orWhere('estado', 'like', "%{$search}%");
+                  ->orWhere('id', 'like', "%{$search}%");
             });
         }
 
@@ -147,18 +142,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/configuracion/ajax-add', [\App\Http\Controllers\OC\ProjectSettingsController::class, 'ajaxStore'])->name('config.ajax.add');
 
     Route::post('/gestor/{id}/status', function (Request $request, $id) {
-        $validated = $request->validate([
-            'estado' => 'required|in:Aceptada,Rechazada',
-            'observacion' => 'required_if:estado,Rechazada|string|nullable'
-        ]);
+        $estado = $request->input('estado') ?? ($request->input('accion') === 'aceptar' ? 'Aceptada' : ($request->input('accion') === 'rechazar' ? 'Rechazada' : null));
+        $observacion = $request->input('observacion') ?? $request->input('comentario');
+
+        if (!$estado) {
+            return $request->ajax() ? response()->json(['success' => false, 'error' => 'Acción no válida'], 400) : back()->with('error', 'Acción no válida');
+        }
 
         $solicitud = DB::table('oc_solicitudes')->where('id', $id)->first();
         if (!$solicitud || $solicitud->estado === 'Facturado') {
-            return response()->json(['success' => false, 'error' => 'No se puede modificar una solicitud ya facturada'], 403);
+            return $request->ajax() ? response()->json(['success' => false, 'error' => 'No se puede modificar una solicitud ya facturada'], 403) : back()->with('error', 'No se puede modificar una solicitud ya facturada');
         }
 
         $estadoAnterior = $solicitud->estado;
-        $nuevoEstado = $validated['estado'];
+        $nuevoEstado = $estado;
 
         $updateData = [
             'estado' => $nuevoEstado,
@@ -166,7 +163,7 @@ Route::middleware(['auth'])->group(function () {
         ];
 
         if ($nuevoEstado === 'Rechazada') {
-            $updateData['observacion_rechazo'] = $validated['observacion'];
+            $updateData['observacion_rechazo'] = $observacion;
         }
 
         DB::table('oc_solicitudes')->where('id', $id)->update($updateData);
@@ -179,7 +176,7 @@ Route::middleware(['auth'])->group(function () {
             'monto' => $solicitud->monto,
             'estado_anterior' => $estadoAnterior,
             'nuevo_estado' => $nuevoEstado,
-            'observacion' => $validated['observacion'] ?? null
+            'observacion' => $observacion
         ]);
 
         // --- Notificación por Correo ---
@@ -192,8 +189,8 @@ Route::middleware(['auth'])->group(function () {
             $emailContent .= "Monto: $" . number_format($solicitud->monto, 0, ',', '.') . "\n";
             $emailContent .= "Nuevo Estado: $nuevoEstado\n";
             
-            if ($nuevoEstado === 'Rechazada' && !empty($validated['observacion'])) {
-                $emailContent .= "Motivo del rechazo: {$validated['observacion']}\n";
+            if ($nuevoEstado === 'Rechazada' && !empty($observacion)) {
+                $emailContent .= "Motivo del rechazo: {$observacion}\n";
             }
             
             $emailContent .= "Fecha: " . now()->format('d/m/Y H:i') . "\n";
@@ -205,10 +202,12 @@ Route::middleware(['auth'])->group(function () {
             });
         } catch (\Exception $e) {
             \Log::error("Error enviando correo de cambio de estado OC: " . $e->getMessage());
-            // No detenemos la respuesta exitosa si falla el correo
         }
 
-        return response()->json(['success' => true]);
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+        return redirect()->route('oc.gestor')->with('success', "Solicitud " . strtolower($nuevoEstado) . " correctamente");
     })->name('gestor.status');
 
     Route::get('/gestor/poll', function () {
@@ -694,45 +693,35 @@ Route::middleware(['auth'])->group(function () {
             $chartQuery->where('estado', '!=', 'Rechazada');
         }
 
-        // Procesar datos en PHP en lugar de SQL REGEX (más seguro)
-        $sumByCeco = (clone $chartQuery)
+        // Procesar datos en PHP para asegurar compatibilidad y limpieza
+        $sumByCecoRaw = (clone $chartQuery)
             ->select('ceco', DB::raw('SUM(monto) as total_monto'))
             ->groupBy('ceco')
-            ->orderByDesc('total_monto')
-            ->get()
-            ->map(function ($item) {
-                // Extraer números de CECO usando PHP
-                $numericCeco = preg_replace('/[^0-9]/', '', $item->ceco);
+            ->get();
 
-                return (object) [
-                    'ceco' => $numericCeco ?: $item->ceco,
-                    'total_monto' => $item->total_monto,
-                ];
-            })
-            ->sortByDesc('total_monto')
-            ->values();  // Convertir a array con índices numéricos consecutivos
+        $sumByCeco = collect();
+        foreach ($sumByCecoRaw as $item) {
+            $numericCeco = preg_replace('/[^0-9]/', '', $item->ceco) ?: $item->ceco;
+            $sumByCeco[$numericCeco] = ($sumByCeco[$numericCeco] ?? 0) + $item->total_monto;
+        }
+        $sumByCeco = $sumByCeco->sortDesc();
 
         $yearFunc = DB::getDriverName() === 'sqlite' ? "strftime('%Y', created_at)" : "YEAR(created_at)";
         $monthFunc = DB::getDriverName() === 'sqlite' ? "strftime('%m', created_at)" : "MONTH(created_at)";
 
-        // Datos por mes y CECO
-        $sumByCecoMonth = (clone $chartQuery)
-            ->select('ceco', DB::raw("$yearFunc as year"), DB::raw("$monthFunc as month"), DB::raw('SUM(monto) as total_monto'))
-            ->groupBy('ceco', 'year', 'month')
+        // Datos por mes (Evolución global)
+        $sumByMonthRaw = (clone $chartQuery)
+            ->select(DB::raw("$yearFunc as year"), DB::raw("$monthFunc as month"), DB::raw('SUM(monto) as total_monto'))
+            ->groupBy('year', 'month')
             ->orderBy('year')
             ->orderBy('month')
-            ->get()
-            ->map(function ($item) {
-                $numericCeco = preg_replace('/[^0-9]/', '', $item->ceco);
+            ->get();
 
-                return (object) [
-                    'ceco' => $numericCeco ?: $item->ceco,
-                    'year' => $item->year,
-                    'month' => $item->month,
-                    'total_monto' => $item->total_monto,
-                ];
-            })
-            ->values();  // Convertir a array con índices numéricos consecutivos
+        $sumByCecoMonth = collect();
+        foreach ($sumByMonthRaw as $item) {
+            $label = $item->month . '/' . $item->year;
+            $sumByCecoMonth[$label] = $item->total_monto;
+        }
 
         $statusCountsRaw = (clone $baseQuery)
             ->select('estado', DB::raw('COUNT(*) as total'), DB::raw('SUM(monto) as total_monto'))
@@ -973,8 +962,10 @@ Route::middleware(['auth'])->group(function () {
     // Exportar OC Enviadas
     Route::get('/enviadas/export', function () {
         $rows = DB::table('oc_enviadas')
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
+            ->leftJoin('oc_solicitudes', 'oc_solicitudes.id', '=', 'oc_enviadas.oc_solicitud_id')
+            ->select('oc_enviadas.*', 'oc_solicitudes.tipo_solicitud', 'oc_solicitudes.tipo_documento')
+            ->orderByDesc('oc_enviadas.created_at')
+            ->orderByDesc('oc_enviadas.id')
             ->get();
 
         $filename = 'oc_enviadas_'.date('Y-m-d_His').'.csv';
@@ -1098,7 +1089,18 @@ Route::middleware(['auth', 'throttle:30,1'])->group(function () {
             ->paginate(10)
             ->withQueryString();
 
-        return view('oc.index', ['rows' => $rows]);
+        $cecos = DB::table('oc_solicitudes')->distinct()->pluck('ceco');
+        $statusCounts = DB::table('oc_solicitudes')
+            ->select('estado', DB::raw('count(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        return view('oc.index', [
+            'rows' => $rows,
+            'cecos' => $cecos,
+            'statusCounts' => $statusCounts,
+            'filters' => $request->all(),
+        ]);
     })->name('index');
 
     Route::get('/inicio-usuario', function () {

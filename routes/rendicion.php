@@ -15,6 +15,7 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('analytics.index');
+    Route::post('/analytics/send-gmail', [DashboardController::class, 'sendGmail'])->name('analytics.sendGmail');
     Route::get('/bandeja', [ReportController::class, 'inbox'])->name('reports.inbox');
     Route::get('/gastos', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::get('/gastos/borradores', [ExpenseController::class, 'drafts'])->name('expenses.drafts');

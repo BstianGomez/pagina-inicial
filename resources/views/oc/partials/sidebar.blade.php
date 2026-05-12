@@ -6,8 +6,10 @@
 @endphp
 
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header" style="padding: 20px;">
-        <x-application-logo size="sm" />
+    <div class="sidebar-header" style="padding: 20px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <div class="brand-icon" style="width: 120px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem;">
+            <img src="{{ asset('rendicion_legacy/images/logo-sofofa-white.png') }}" alt="SOFOFA Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
         <button class="mobile-close-btn" onclick="toggleMobileSidebar()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>

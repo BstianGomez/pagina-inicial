@@ -16,7 +16,18 @@ class OcEnviadasController extends Controller
     {
         $query = DB::table('oc_enviadas')
             ->leftJoin('oc_solicitudes', 'oc_solicitudes.id', '=', 'oc_enviadas.oc_solicitud_id')
-            ->select('oc_enviadas.*', 'oc_solicitudes.estado as solicitud_estado', 'oc_solicitudes.estado_facturacion as solicitud_estado_facturacion', 'oc_solicitudes.tipo_solicitud');
+            ->select(
+                'oc_enviadas.*', 
+                'oc_solicitudes.ceco as sol_ceco',
+                'oc_solicitudes.proveedor as sol_proveedor',
+                'oc_solicitudes.rut as sol_rut',
+                'oc_solicitudes.descripcion as sol_descripcion',
+                'oc_solicitudes.monto as sol_monto',
+                'oc_solicitudes.estado as solicitud_estado', 
+                'oc_solicitudes.estado_facturacion as solicitud_estado_facturacion', 
+                'oc_solicitudes.tipo_solicitud', 
+                'oc_solicitudes.tipo_documento'
+            );
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -59,8 +70,8 @@ class OcEnviadasController extends Controller
         }
 
         // If there is an uploaded file, serve it directly
-        if (! empty($oc->file_path) && \Illuminate\Support\Facades\Storage::disk('private')->exists($oc->file_path)) {
-            return \Illuminate\Support\Facades\Storage::disk('private')->download($oc->file_path, 'OC_'.$oc->numero_oc.'.pdf');
+        if (! empty($oc->file_path) && \Illuminate\Support\Facades\Storage::disk('local')->exists($oc->file_path)) {
+            return \Illuminate\Support\Facades\Storage::disk('local')->download($oc->file_path, 'OC_'.$oc->numero_oc.'.pdf');
         }
 
         // if no file exists and no fallback is desired
@@ -84,7 +95,7 @@ class OcEnviadasController extends Controller
             'ceco' => 'nullable|string',
             'tipo_solicitud' => 'nullable|string',
             'proveedor' => 'nullable|string',
-            'email_proveedor' => 'required|email',
+            'email_proveedor' => 'nullable|email',
             'rut' => 'nullable|string',
             'descripcion' => 'nullable|string',
             'cantidad' => 'nullable|integer',
@@ -113,7 +124,7 @@ class OcEnviadasController extends Controller
             if ($request->hasFile('oc_file')) {
                 $file = $request->file('oc_file');
                 $safeName = 'OC_' . $request->input('numero_oc') . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('ocs_subidas', $safeName, 'private');
+                $filePath = $file->storeAs('ocs_subidas', $safeName, 'local');
             }
 
             // Insertar en oc_enviadas
@@ -145,10 +156,11 @@ class OcEnviadasController extends Controller
             // Obtener los datos para el correo
             $oc = DB::table('oc_enviadas')->where('id', $idEnviada)->first();
 
-            // Notificar al proveedor
+            // Notificar al usuario (automático)
             try {
-                if ($oc && !empty($oc->email_proveedor)) {
-                    \Illuminate\Support\Facades\Mail::to($oc->email_proveedor)
+                if ($oc) {
+                    $recipientEmail = !empty($oc->email_proveedor) ? $oc->email_proveedor : auth()->user()->email;
+                    \Illuminate\Support\Facades\Mail::to($recipientEmail)
                         ->bcc(auth()->user()->email)
                         ->send(new \App\Mail\OC\OcProveedorMail($oc));
                 }
@@ -197,7 +209,8 @@ class OcEnviadasController extends Controller
                 return response()->json(['success' => false, 'message' => 'Primero debe subir el archivo de la OC'], 400);
             }
 
-            \Illuminate\Support\Facades\Mail::to($oc->email_proveedor)
+            $recipientEmail = !empty($oc->email_proveedor) ? $oc->email_proveedor : auth()->user()->email;
+            \Illuminate\Support\Facades\Mail::to($recipientEmail)
                 ->bcc(auth()->user()->email)
                 ->send(new \App\Mail\OC\OcProveedorMail($oc));
 
@@ -220,7 +233,7 @@ class OcEnviadasController extends Controller
     {
         $request->validate([
             'numero_oc' => 'required|string',
-            'email_proveedor' => 'required|email',
+            'email_proveedor' => 'nullable|email',
             'descripcion' => 'nullable|string',
             'cantidad' => 'nullable|integer',
             'monto' => 'nullable',
@@ -262,7 +275,7 @@ class OcEnviadasController extends Controller
             if ($request->hasFile('oc_file')) {
                 $file = $request->file('oc_file');
                 $safeName = 'OC_' . $request->input('numero_oc') . '_' . time() . '.' . $file->getClientOriginalExtension();
-                $filePath = $file->storeAs('ocs_subidas', $safeName, 'private');
+                $filePath = $file->storeAs('ocs_subidas', $safeName, 'local');
                 $data['file_path'] = $filePath;
             }
 

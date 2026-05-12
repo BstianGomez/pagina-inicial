@@ -175,12 +175,12 @@
             html.dark .bg-white { background-color: #1e293b !important; }
             html.dark .border-slate-100 { border-color: #334155 !important; }
             html.dark .border-slate-200 { border-color: #475569 !important; }
-            html.dark .text-slate-900 { color: #f1f5f9 !important; }
-            html.dark .text-slate-800 { color: #e2e8f0 !important; }
-            html.dark .text-slate-700 { color: #cbd5e1 !important; }
-            html.dark .text-slate-600 { color: #94a3b8 !important; }
-            html.dark .text-slate-500 { color: #64748b !important; }
-            html.dark .text-slate-400 { color: #475569 !important; }
+            html.dark .text-slate-900, html.dark .text-gray-900, html.dark .text-neutral-900, html.dark .text-zinc-900 { color: #f1f5f9 !important; }
+            html.dark .text-slate-800, html.dark .text-gray-800, html.dark .text-neutral-800, html.dark .text-zinc-800 { color: #e2e8f0 !important; }
+            html.dark .text-slate-700, html.dark .text-gray-700, html.dark .text-neutral-700, html.dark .text-zinc-700 { color: #cbd5e1 !important; }
+            html.dark .text-slate-600, html.dark .text-gray-600, html.dark .text-neutral-600, html.dark .text-zinc-600 { color: #94a3b8 !important; }
+            html.dark .text-slate-500, html.dark .text-gray-500, html.dark .text-neutral-500, html.dark .text-zinc-500 { color: #64748b !important; }
+            html.dark .text-slate-400, html.dark .text-gray-400, html.dark .text-neutral-400, html.dark .text-zinc-400 { color: #475569 !important; }
             html.dark .bg-slate-50 { background-color: #0f172a !important; }
             html.dark .bg-slate-100 { background-color: #1e293b !important; }
             html.dark .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5) !important; }
@@ -250,7 +250,8 @@
 
         <!-- Page Content -->
         <main class="main-content">
-            {{ $slot }}
+            {{ $slot ?? '' }}
+            @yield('content')
         </main>
 
         <script>

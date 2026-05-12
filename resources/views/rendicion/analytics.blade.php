@@ -87,12 +87,22 @@
                 <h1 class="an-title">Analytics de Rendiciones</h1>
                 <p class="an-sub">{{ $isAdmin ? 'Vista global de todas las rendiciones' : 'Resumen de tus propias rendiciones' }} · Actualizado {{ now()->format('d/m/Y H:i') }}</p>
             </div>
-            <a href="{{ route('rendicion.analytics.index', ['export' => 'csv']) }}" class="btn-export">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                </svg>
-                Exportar CSV
-            </a>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" class="btn-export" style="background:#ea4335;" onclick="Dashboard.openGmailModal()">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Enviar por Gmail
+                </button>
+                <button type="button" class="btn-export" style="background:#e11d48;" onclick="Dashboard.downloadPdf()">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Exportar PDF
+                </button>
+                <a href="{{ route('rendicion.analytics.index', ['export' => 'csv']) }}" class="btn-export">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Exportar CSV
+                </a>
+            </div>
         </div>
 
         {{-- KPI Cards --}}
@@ -236,6 +246,39 @@
             </div>
         </div>
 
+    <!-- Modal Gmail -->
+    <div id="gmailModal" class="hidden fixed inset-0 z-[999] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="Dashboard.closeGmailModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+            <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg flex items-center gap-2">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Enviar por Gmail
+                </h3>
+                <button onclick="Dashboard.closeGmailModal()" class="text-white/80 hover:text-white transition-colors">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-slate-600 text-sm mb-4">Ingresa el correo al que deseas enviar la captura en PDF de este reporte de analytics.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                        <input type="email" id="gmailEmailInput" class="w-full border-2 border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 font-medium focus:border-red-500 focus:ring-0 transition-colors" placeholder="ejemplo@sofofa.cl" value="{{ auth()->user()->email }}">
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="Dashboard.closeGmailModal()" class="px-5 py-2.5 rounded-xl font-bold text-slate-600 hover:bg-slate-200 transition-colors text-sm">Cancelar</button>
+                <button onclick="Dashboard.sendGmail()" id="btnSendGmail" class="px-5 py-2.5 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 text-sm flex items-center gap-2">
+                    <span>Enviar Correo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script>
     (function () {
@@ -399,5 +442,92 @@
             });
         });
     })();
+
+    const Dashboard = {
+        toast: Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        }),
+
+        downloadPdf: function() {
+            this.toast.fire({ icon: 'info', title: 'Generando PDF...' });
+            const element = document.querySelector('.an-page');
+            const opt = {
+                margin:       10,
+                filename:     'Rendiciones_Analytics.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save();
+        },
+
+        openGmailModal: function() {
+            document.getElementById('gmailModal').classList.remove('hidden');
+        },
+
+        closeGmailModal: function() {
+            document.getElementById('gmailModal').classList.add('hidden');
+        },
+
+        sendGmail: async function() {
+            const email = document.getElementById('gmailEmailInput').value;
+            if (!email) {
+                this.toast.fire({ icon: 'warning', title: 'Por favor, ingresa un correo' });
+                return;
+            }
+
+            const btn = document.getElementById('btnSendGmail');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<svg class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generando...`;
+            btn.disabled = true;
+
+            try {
+                const element = document.querySelector('.an-page');
+                const opt = {
+                    margin:       10,
+                    filename:     'reporte.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                const pdfBase64 = await html2pdf().set(opt).from(element).outputPdf('datauristring');
+                
+                btn.innerHTML = `<svg class="animate-spin h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando...`;
+
+                const response = await fetch("{{ route('rendicion.analytics.sendGmail') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        pdf_data: pdfBase64
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    this.closeGmailModal();
+                    this.toast.fire({ icon: 'success', title: data.message || 'Reporte enviado con éxito' });
+                } else {
+                    throw new Error(data.message || 'Error al enviar el reporte');
+                }
+            } catch (error) {
+                console.error(error);
+                this.toast.fire({ icon: 'error', title: error.message || 'Ocurrió un error inesperado' });
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    };
     </script>
 </x-rendicion.layouts.app>

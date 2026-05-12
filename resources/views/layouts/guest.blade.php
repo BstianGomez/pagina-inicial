@@ -25,7 +25,8 @@
             </div>
 
             <div class="w-full sm:max-w-3xl px-8 py-10 bg-white/95 backdrop-blur-md shadow-2xl overflow-hidden sm:rounded-2xl border border-white/20 mx-auto">
-                {{ $slot }}
+                {{ $slot ?? '' }}
+                @yield('content')
             </div>
             
             <footer class="mt-8 text-blue-300/50 text-xs font-medium uppercase tracking-widest">

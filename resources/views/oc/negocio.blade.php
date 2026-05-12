@@ -1,585 +1,575 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('oc.layouts.dashboard')
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Solicitud de OC unidad de negocio</title>
+@section('title', 'Solicitud OC Negocio')
+@section('subtitle', 'Creación de orden de compra para unidades de negocio')
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @include('oc.partials.common_scripts')
-    <style>
-        @include('oc.partials.common_styles')
-    </style>
-</head>
-<body>
-    <div class="page">
-        @include('oc.partials.sidebar', ['active' => 'negocio'])
-        <div class="main-content">
-        <x-oc.page-header 
-            title="" 
-            subtitle=""
-            :backRoute="null"
-            :showLogout="true"
-        />
+@section('header')
+<div class="ms-banner">
+    <div>
+        <h1 class="ms-banner-title">Solicitud OC Negocio</h1>
+        <p class="ms-banner-sub">Gestione solicitudes vinculadas a proyectos y unidades de negocio específicas.</p>
+    </div>
+</div>
+@endsection
 
-        <main class="content">
-            <form class="card" method="POST" enctype="multipart/form-data">
-                <div class="card-header">
-                    <div>
-                        <h2 class="card-title">Solicitud de OC Unidad de Negocio</h2>
-                        <p class="card-subtitle">Completa los campos para solicitar una orden de compra</p>
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    @csrf
+@section('content')
+<style>
+    .form-card-premium {
+        background: white;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-premium);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
 
-                <!-- Honeypot para evitar bots -->
-                <div style="display:none;" aria-hidden="true">
-                    <label for="my_company_website">Sitio web modificado (no rellenar)</label>
-                    <input type="text" name="my_company_website" id="my_company_website" tabindex="-1" autocomplete="off">
-                </div>
+    .card-section-header {
+        padding: 1.5rem 2rem;
+        background: #fcfdfe;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-                @if ($errors->any())
-                    <div class="alert alert-error">
-                        <span style="font-size: 18px;">⚠</span>
-                        <div>
-                            <div>Revisa los campos antes de enviar.</div>
-                            <ul class="alert-list">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                @endif
+    .card-section-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin: 0;
+    }
 
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        <span style="font-size: 18px;">✓</span>
-                        <div>{{ session('success') }}</div>
-                    </div>
-                @endif
+    .card-body-padding {
+        padding: 2rem;
+    }
 
+    .form-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
 
-                    <div class="form-grid three-col">
-                        <div class="form-field">
-                            <label class="form-label">CECO de imputación del gasto <span class="required">*</span></label>
-                            <select class="select" name="ceco" required>
-                                <option value="">Seleccione un CECO</option>
-                                @foreach($cecos->groupBy('tipo') as $tipo => $items)
-                                    <optgroup label="── {{ $tipo }} ──">
-                                        @foreach($items as $ceco)
-                                            <option value="{{ $ceco->codigo }}">{{ $ceco->codigo }} - {{ $ceco->nombre }}</option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
-                            </select>
-                        </div>
+    .form-group-modern {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">
-                                Coordinador de proyecto <span class="required">*</span>
-                                <button type="button" class="btn-add-option" title="Agregar coordinador" onclick="addNewOption('coordinador', 'coordinador', 'Nuevo Coordinador')">+</button>
-                            </label>
-                            <select class="select" name="coordinador" id="coordinador" required>
-                                <option value="">Seleccione coordinador</option>
-                                @foreach($coordinadores as $item)
-                                    <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+    .label-flex-modern {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">
-                                Tipo de servicio <span class="required">*</span>
-                                <button type="button" class="btn-add-option" title="Agregar tipo de servicio" onclick="addNewOption('tipo_servicio', 'tipo_servicio', 'Nuevo Tipo de Servicio')">+</button>
-                            </label>
-                            <select class="select" name="tipo_servicio" id="tipo_servicio" required>
-                                <option value="">Seleccione tipo de servicio</option>
-                                @foreach($tipoServicios as $item)
-                                    <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+    .label-modern {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+    }
 
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label class="form-label">
-                                Tipo de Proyecto <span class="required">*</span>
-                                <button type="button" class="btn-add-option" title="Agregar tipo de proyecto" onclick="addNewOption('tipo_proyecto', 'tipo_proyecto', 'Nuevo Tipo de Proyecto')">+</button>
-                            </label>
-                            <select class="select" name="tipo_proyecto" id="tipo_proyecto" required>
-                                <option value="">Seleccione tipo de proyecto</option>
-                                @foreach($tipoProyectos as $item)
-                                    <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+    .btn-add-option-modern {
+        background: rgba(15, 107, 182, 0.1);
+        color: var(--brand-primary);
+        border: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">N° de proyecto <span class="required">*</span></label>
-                            <input type="text" class="input" name="numero_proyecto" required />
-                        </div>
-                    </div>
+    .btn-add-option-modern:hover {
+        background: var(--brand-primary);
+        color: white;
+    }
 
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label class="form-label">Tipo documento <span class="required">*</span></label>
-                            <select class="select" name="tipo_documento" required>
-                                <option value="">Buscar elementos</option>
-                                <option value="Factura">Factura</option>
-                                <option value="Boleta de Honorarios">Boleta de Honorarios</option>
-                                <option value="Boleta">Boleta</option>
-                            </select>
-                        </div>
+    .input-premium {
+        width: 100%;
+        padding: 0.7rem 0.9rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        outline: none;
+        background: #fff;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">RUT proveedor <span class="required">*</span></label>
-                            <input type="text" class="input" name="rut_proveedor" id="rutProveedor" readonly style="background: #f5f8fb;" />
-                        </div>
-                    </div>
+    .input-premium:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px rgba(15, 107, 182, 0.1);
+    }
 
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label class="form-label">Nombre proveedor <span class="required">*</span></label>
-                            <select class="select" name="nombre_proveedor" id="nombreProveedor" required>
-                                <option value="">Seleccione un proveedor</option>
-                                @foreach($proveedores as $proveedor)
-                                    <option value="{{ $proveedor->nombre }}" data-rut="{{ $proveedor->rut }}">{{ $proveedor->nombre }}</option>
-                                @endforeach
-                            </select>
+    .input-premium:read-only {
+        background-color: #f8fafc;
+        cursor: not-allowed;
+    }
 
-                            <a href="#" id="btnOpenProveedorModal" style="display:block; margin-top:5px; font-size: 0.9em; color: var(--brand);">¿No existe el proveedor? Regístralo aquí</a>
+    .select-premium {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
 
-                        </div>
+    .textarea-premium {
+        min-height: 80px;
+        resize: vertical;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">Cantidad de módulos a pagar <span class="required">*</span></label>
-                            <input type="number" class="input" name="cantidad_modulos" value="1" min="1" required />
-                        </div>
+    .attachment-premium {
+        border: 2px dashed var(--border-color);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
+        background: #f8fafc;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+    }
 
-                        <div class="form-field">
-                            <label class="form-label">Monto (fact monto Neto - honorarios monto bruto) <span class="required">*</span></label>
-                            <div style="position: relative;">
-                                <input type="text" class="input" id="montoDisplay" placeholder="$0" />
-                                <input type="hidden" name="monto" id="montoValue" required />
-                            </div>
-                        </div>
-                    </div>
+    .attachment-premium:hover {
+        border-color: var(--brand-primary);
+        background: rgba(15, 107, 182, 0.02);
+    }
 
-                    <div class="form-grid">
-                        <div class="form-field full-width">
-                            <label class="form-label">Instrucciones Especiales (Opcional)</label>
-                            <textarea class="textarea" name="observacion2" placeholder="Detalles específicos para la unidad de negocio..."></textarea>
-                        </div>
+    .form-footer-premium {
+        padding: 1.5rem 2rem;
+        background: #fcfdfe;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
 
-                        <div class="form-field full-width">
-                            <label class="form-label">Observación / Comentario</label>
-                            <textarea class="textarea" name="observacion" placeholder="Añada cualquier detalle o instrucción adicional aquí..."></textarea>
-                        </div>
-                    </div>
+    .modal-premium {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
 
-                    <div class="form-field">
-                        <label class="form-label">Email de envío OC <span class="required">*</span></label>
-                        <input type="email" class="input" name="email" required />
-                    </div>
+    .modal-premium-content {
+        background: white;
+        width: 100%;
+        max-width: 650px;
+        border-radius: 2rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
 
-                    <div class="form-field full-width">
-                        <label class="form-label">Datos adjuntos</label>
-                        <div class="attachment-box">
-                            <p>No hay archivo adjunto.</p>
-                            <label class="file-input">
-                                📎 Adjuntar cotización
-                                <input type="file" name="adjunto" accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-                            </label>
-                        </div>
-                    </div>
-                </div>
+    .required-star { color: #ef4444; }
+</style>
 
-                <div class="actions">
-                    <a href="{{ route('oc.index') }}" class="btn btn-ghost">↩ Volver</a>
-                    <button type="submit" class="btn btn-primary">📨 Enviar</button>
-                </div>
-
-            </form>
-        </main>
+@if ($errors->any())
+    <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 1.25rem; border-radius: 1rem; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 1rem; font-weight: 600;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <div>
+            <strong>Errores en el formulario:</strong>
+            <ul style="margin: 0.5rem 0 0; padding-left: 1.25rem; font-size: 0.9rem; font-weight: 500;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     </div>
+@endif
 
-    <script>
-        // Auto-completar RUT de proveedor cuando se selecciona el nombre
+<form action="{{ route('oc.negocio') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    
+    <div style="display:none;" aria-hidden="true">
+        <input type="text" name="my_company_website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <div class="form-card-premium">
+        <!-- SECCION I: PROYECTO -->
+        <div class="card-section-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <h2 class="card-section-title">Información del Proyecto</h2>
+        </div>
+        
+        <div class="card-body-padding">
+            <div class="form-grid-modern">
+                <div class="form-group-modern">
+                    <label class="label-modern">CECO de Imputación <span class="required-star">*</span></label>
+                    <select class="input-premium select-premium" name="ceco" required>
+                        <option value="">Seleccionar CECO...</option>
+                        @foreach($cecos->groupBy('tipo') as $tipo => $items)
+                            <optgroup label="── {{ $tipo }} ──">
+                                @foreach($items as $ceco)
+                                    <option value="{{ $ceco->codigo }}">{{ $ceco->codigo }} - {{ $ceco->nombre }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group-modern">
+                    <div class="label-flex-modern">
+                        <label class="label-modern">Coordinador <span class="required-star">*</span></label>
+                        <button type="button" class="btn-add-option-modern" onclick="addNewOption('coordinador', 'coordinador', 'Nuevo Coordinador')" title="Añadir coordinador">+</button>
+                    </div>
+                    <select class="input-premium select-premium" name="coordinador" id="coordinador" required>
+                        <option value="">Seleccionar...</option>
+                        @foreach($coordinadores as $item)
+                            <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group-modern">
+                    <div class="label-flex-modern">
+                        <label class="label-modern">Tipo de Servicio <span class="required-star">*</span></label>
+                        <button type="button" class="btn-add-option-modern" onclick="addNewOption('tipo_servicio', 'tipo_servicio', 'Nuevo Tipo de Servicio')" title="Añadir tipo de servicio">+</button>
+                    </div>
+                    <select class="input-premium select-premium" name="tipo_servicio" id="tipo_servicio" required>
+                        <option value="">Seleccionar...</option>
+                        @foreach($tipoServicios as $item)
+                            <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid-modern">
+                <div class="form-group-modern">
+                    <div class="label-flex-modern">
+                        <label class="label-modern">Tipo de Proyecto <span class="required-star">*</span></label>
+                        <button type="button" class="btn-add-option-modern" onclick="addNewOption('tipo_proyecto', 'tipo_proyecto', 'Nuevo Tipo de Proyecto')" title="Añadir tipo de proyecto">+</button>
+                    </div>
+                    <select class="input-premium select-premium" name="tipo_proyecto" id="tipo_proyecto" required>
+                        <option value="">Seleccionar...</option>
+                        @foreach($tipoProyectos as $item)
+                            <option value="{{ $item->nombre }}">{{ $item->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group-modern">
+                    <label class="label-modern">N° de Proyecto / OT / OP <span class="required-star">*</span></label>
+                    <input type="text" class="input-premium" name="numero_proyecto" required placeholder="Ej: PRJ-2024-001">
+                </div>
+                <div class="form-group-modern">
+                    <label class="label-modern">Tipo Documento <span class="required-star">*</span></label>
+                    <select class="input-premium select-premium" name="tipo_documento" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="Factura">Factura</option>
+                        <option value="Boleta de Honorarios">Boleta de Honorarios</option>
+                        <option value="Boleta">Boleta</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCION II: PROVEEDOR Y PAGOS -->
+        <div class="card-section-header" style="border-top: 1px solid var(--border-color);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <h2 class="card-section-title">Proveedor y Detalles de Pago</h2>
+        </div>
+
+        <div class="card-body-padding">
+            <div class="form-grid-modern">
+                <div class="form-group-modern" style="grid-column: span 2;">
+                    <label class="label-modern">Proveedor <span class="required-star">*</span></label>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <select class="input-premium select-premium" name="nombre_proveedor" id="nombreProveedor" required>
+                            <option value="">Seleccionar proveedor...</option>
+                            @foreach($proveedores as $proveedor)
+                                <option value="{{ $proveedor->nombre }}" data-rut="{{ $proveedor->rut }}">{{ $proveedor->nombre }}</option>
+                            @endforeach
+                        </select>
+                        <a href="#" id="btnOpenProveedorModal" style="font-size: 0.75rem; color: var(--brand-primary); font-weight: 700; text-decoration: none;">+ ¿No existe el proveedor? Registrar aquí</a>
+                    </div>
+                </div>
+                <div class="form-group-modern">
+                    <label class="label-modern">RUT Proveedor</label>
+                    <input type="text" class="input-premium" name="rut_proveedor" id="rutProveedor" readonly placeholder="Auto-completado">
+                </div>
+            </div>
+
+            <div class="form-grid-modern">
+                <div class="form-group-modern">
+                    <label class="label-modern">Módulos / Cantidad <span class="required-star">*</span></label>
+                    <input type="number" class="input-premium" name="cantidad_modulos" value="1" min="1" required>
+                </div>
+                <div class="form-group-modern">
+                    <label class="label-modern">Monto Total <span class="required-star">*</span></label>
+                    <input type="text" class="input-premium" id="montoDisplay" placeholder="$ 0" required>
+                    <input type="hidden" name="monto" id="montoValue">
+                </div>
+                <div class="form-group-modern">
+                    <label class="label-modern">Email Envío OC <span class="required-star">*</span></label>
+                    <input type="email" class="input-premium" name="email" required placeholder="ejemplo@correo.com">
+                </div>
+            </div>
+
+            <div class="form-group-modern" style="margin-bottom: 1.5rem;">
+                <label class="label-modern">Documentación Adjunta (Cotización)</label>
+                <div class="attachment-premium" onclick="document.getElementById('adjunto_input').click()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--brand-primary);"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <p id="file_status" style="margin:0; font-weight: 700; font-size: 0.9rem;">Adjuntar Cotización</p>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">PDF, Word o Excel (Máx 10MB)</span>
+                    <input type="file" name="adjunto" id="adjunto_input" accept=".pdf,.doc,.docx,.xls,.xlsx" style="display: none;">
+                </div>
+            </div>
+
+            <div class="form-group-modern" style="margin-bottom: 1.5rem;">
+                <label class="label-modern">Instrucciones Especiales para Negocio</label>
+                <textarea class="input-premium textarea-premium" name="observacion2" placeholder="Detalles de facturación o entrega específicos..."></textarea>
+            </div>
+
+            <div class="form-group-modern">
+                <label class="label-modern">Observaciones Generales</label>
+                <textarea class="input-premium textarea-premium" name="observacion" placeholder="Comentarios para el aprobador..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-footer-premium">
+            <a href="{{ route('oc.index') }}" class="ms-btn-reset">
+                Cancelar
+            </a>
+            <button type="submit" class="ms-btn-reset ms-btn-new">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Enviar Solicitud
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Modal Nuevo Proveedor -->
+<div id="proveedorModal" class="modal-premium">
+    <div class="modal-premium-content">
+        <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #fcfdfe;">
+            <h3 style="margin:0; font-weight: 800; color: var(--text-main);">Registrar Nuevo Proveedor</h3>
+            <button type="button" class="ms-btn-reset" style="padding: 0.4rem; border-radius: 50%;" id="btnCloseProveedorModal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="formNuevoProveedor">
+            <div style="padding: 2rem; max-height: 70vh; overflow-y: auto;">
+                <div id="proveedorStep1">
+                    <p style="font-weight: 800; color: var(--brand-primary); margin-bottom: 1.5rem; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">I. Información Básica</p>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">RUT <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_rut" required placeholder="12.345.678-9"></div>
+                        <div class="form-group-modern"><label class="label-modern">Nombre Comercial <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_nombre" required></div>
+                    </div>
+                    <div class="form-group-modern" style="margin-bottom: 1.5rem;"><label class="label-modern">Razón Social <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_razon_social" required></div>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">Dirección <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_direccion" required></div>
+                        <div class="form-group-modern"><label class="label-modern">Comuna <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_comuna" required></div>
+                    </div>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">Región <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_region" required></div>
+                        <div class="form-group-modern"><label class="label-modern">Teléfono <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_telefono" required></div>
+                    </div>
+                </div>
+                <div id="proveedorStep2" style="display: none;">
+                    <p style="font-weight: 800; color: var(--brand-primary); margin-bottom: 1.5rem; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">II. Datos Bancarios</p>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">N° Cuenta <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_numero_cuenta" required></div>
+                        <div class="form-group-modern"><label class="label-modern">Tipo Cuenta <span class="required-star">*</span></label><select class="input-premium select-premium" id="prov_tipo_cuenta" required><option value="">Seleccionar...</option><option value="Cuenta Corriente">Cuenta Corriente</option><option value="Cuenta Vista">Cuenta Vista</option><option value="Cuenta RUT">Cuenta RUT</option></select></div>
+                    </div>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">Banco <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_banco" required></div>
+                        <div class="form-group-modern"><label class="label-modern">Correo <span class="required-star">*</span></label><input type="email" class="input-premium" id="prov_correo" required></div>
+                    </div>
+                    <div class="form-grid-modern">
+                        <div class="form-group-modern"><label class="label-modern">Nombre Titular <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_nombre_titular" required></div>
+                        <div class="form-group-modern"><label class="label-modern">RUT Titular <span class="required-star">*</span></label><input type="text" class="input-premium" id="prov_rut_titular" required placeholder="12.345.678-9"></div>
+                    </div>
+                    <div class="form-group-modern" style="margin-top: 1rem;"><label class="label-modern">Certificado Bancario (PDF) <span class="required-star">*</span></label><input type="file" class="input-premium" id="prov_certificado" required accept=".pdf"></div>
+                </div>
+            </div>
+            <div style="padding: 1.5rem 2rem; background: #fcfdfe; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 1rem;">
+                <div id="footerStep1" style="display: flex; gap: 1rem;">
+                    <button type="button" class="ms-btn-reset" id="btnCancelProveedor">Cancelar</button>
+                    <button type="button" class="ms-btn-reset ms-btn-new" id="btnNextStep1">Siguiente →</button>
+                </div>
+                <div id="footerStep2" style="display: none; gap: 1rem;">
+                    <button type="button" class="ms-btn-reset" id="btnPrevStep2">← Atrás</button>
+                    <button type="submit" class="ms-btn-reset ms-btn-new">Finalizar Registro</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    async function addNewOption(type, selectId, title) {
+        const { value: name } = await Swal.fire({
+            title: title,
+            input: 'text',
+            inputLabel: 'Nombre del nuevo elemento',
+            inputPlaceholder: 'Escriba aquí...',
+            showCancelButton: true,
+            confirmButtonText: 'Añadir',
+            cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (!value) return 'El nombre es obligatorio';
+            }
+        });
+
+        if (name) {
+            Swal.fire({ title: 'Procesando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            
+            try {
+                const response = await fetch('/oc/configuracion/ajax-add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ type, nombre: name })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById(selectId);
+                    const option = new Option(name, name, true, true);
+                    select.add(option);
+                    Swal.fire({ icon: 'success', title: 'Añadido', text: 'El elemento se agregó correctamente.', timer: 1500, showConfirmButton: false });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'No se pudo añadir el elemento.' });
+                }
+            } catch (error) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un problema con la comunicación al servidor.' });
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
         const nombreProveedorSelect = document.getElementById('nombreProveedor');
         const rutProveedorInput = document.getElementById('rutProveedor');
         
         nombreProveedorSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
-            const rut = selectedOption.getAttribute('data-rut');
-            rutProveedorInput.value = rut || '';
+            rutProveedorInput.value = selectedOption.getAttribute('data-rut') || '';
         });
 
-    </script>
-    
-    <!-- Validaciones del lado del cliente -->
-    <script src="{{ asset('oc/js/oc-validaciones.js') }}"></script>
+        // Money formatting
+        const montoDisplay = document.getElementById('montoDisplay');
+        const montoValue = document.getElementById('montoValue');
 
-    <!-- Formateo de Monto como Dinero -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const montoDisplay = document.getElementById('montoDisplay');
-            const montoValue = document.getElementById('montoValue');
-
-            if (!montoDisplay || !montoValue) return;
-
-            // Función para formatear como dinero
-            function formatMoney(value) {
-                const numValue = value.replace(/[^\d]/g, '');
-                if (!numValue) return '';
-                return '$' + parseInt(numValue).toLocaleString('es-CL');
-            }
-
-            // Función para obtener solo números
-            function getNumericValue(value) {
-                return value.replace(/[^\d]/g, '');
-            }
-
-            // Evento al escribir
-            montoDisplay.addEventListener('input', function(e) {
-                let value = e.target.value;
-                const numericValue = getNumericValue(value);
-                
-                // Mostrar formato de dinero
-                if (numericValue) {
-                    e.target.value = formatMoney(value);
-                    montoValue.value = numericValue;
-                } else {
-                    e.target.value = '';
-                    montoValue.value = '';
-                }
-            });
-
-            // Evento al pegar contenido
-            montoDisplay.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-                const numericValue = getNumericValue(pastedText);
-                
-                if (numericValue) {
-                    montoDisplay.value = formatMoney(numericValue);
-                    montoValue.value = numericValue;
-                }
-            });
-
-            // Validación al enviar formulario
-            const form = montoDisplay.closest('form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    if (!montoValue.value) {
-                        e.preventDefault();
-                        montoDisplay.style.borderColor = '#ef4444';
-                        alert('Por favor ingrese un monto válido');
-                    }
-                });
+        montoDisplay.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d]/g, '');
+            if (value) {
+                e.target.value = '$ ' + parseInt(value).toLocaleString('es-CL');
+                montoValue.value = value;
+            } else {
+                e.target.value = '';
+                montoValue.value = '';
             }
         });
-    </script>
 
-<!-- Modal Nuevo Proveedor -->
-<div id="proveedorModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 550px;">
-        <h2 class="modal-title">Registrar Nuevo Proveedor</h2>
-        <form id="formNuevoProveedor">
-            
-            <!-- STEP 1 -->
-            <div id="proveedorStep1">
-                <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--brand);">I. Información del Proveedor</h3>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">RUT <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_rut" required style="width: 100%;" pattern="^[0-9]+-[0-9kK]{1}$" title="Ejemplo: 12345678-9" oninput="this.value = this.value.replace(/[^0-9kK-]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Nombre de Fantasía <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_nombre" required style="width: 100%;" minlength="2" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Razón Social <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_razon_social" required style="width: 100%;" minlength="2" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Dirección <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_direccion" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Comuna <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_comuna" required style="width: 100%;" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Región <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_region" required style="width: 100%;" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Teléfono <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_telefono" required style="width: 100%;" pattern="^\+?[0-9]{8,15}$" oninput="this.value = this.value.replace(/[^0-9+]/g, '')" >
-                </div>
-                <div style="text-align: right; margin-top: 15px; display:flex; justify-content:flex-end; gap: 10px;">
-                    <button type="button" class="btn btn-secondary" id="btnCancelProveedor" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 9px; font-weight: 600; cursor: pointer;">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnNextStep1">Siguiente</button>
-                </div>
-            </div>
-
-            <!-- STEP 2 -->
-            <div id="proveedorStep2" style="display: none;">
-                <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--brand);">II. Información Bancaria</h3>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">N° Cuenta <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_numero_cuenta" required style="width: 100%;" pattern="^[0-9]+$" oninput="this.value = this.value.replace(/[^0-9]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Tipo de Cuenta <span style="color:red">*</span></label>
-                    <select id="prov_tipo_cuenta" required style="width: 100%;" class="input">
-                        <option value="">Seleccionar...</option>
-                        <option value="Cuenta Corriente">Cuenta Corriente</option>
-                        <option value="Cuenta Vista">Cuenta Vista</option>
-                        <option value="Cuenta RUT">Cuenta RUT</option>
-                        <option value="Cuenta de Ahorro">Cuenta de Ahorro</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Banco <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_banco" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Nombre Titular <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_nombre_titular" required style="width: 100%;" oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Rut Titular <span style="color:red">*</span></label>
-                    <input type="text" class="input" id="prov_rut_titular" required style="width: 100%;" pattern="^[0-9]+-[0-9kK]{1}$" title="Ejemplo: 12345678-9" oninput="this.value = this.value.replace(/[^0-9kK-]/g, '')" >
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Correo <span style="color:red">*</span></label>
-                    <input type="email" class="input" id="prov_correo" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Certificado Bancario (Solo PDF) <span style="color:red">*</span></label>
-                    <input type="file" class="input" id="prov_certificado" required accept=".pdf" style="width: 100%;">
-                </div>
-                <div style="text-align: right; margin-top: 15px; display:flex; justify-content:flex-end; gap: 10px;">
-                    <button type="button" class="btn btn-secondary" id="btnPrevStep2" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 9px; font-weight: 600; cursor: pointer;">Atrás</button>
-                    <button type="submit" class="btn btn-primary">Guardar Proveedor</button>
-                </div>
-            </div>
-            
-        </form>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btnOpen = document.getElementById('btnOpenProveedorModal');
-    const modal = document.getElementById('proveedorModal');
-    const btnCancel = document.getElementById('btnCancelProveedor');
-    const form = document.getElementById('formNuevoProveedor');
-    const selectProveedor = document.getElementById('nombreProveedor');
-    
-    const step1 = document.getElementById('proveedorStep1');
-    const step2 = document.getElementById('proveedorStep2');
-    const btnNextStep1 = document.getElementById('btnNextStep1');
-    const btnPrevStep2 = document.getElementById('btnPrevStep2');
-
-    if (btnOpen && modal) {
-        btnOpen.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-                    form.reset();
-            step1.style.display = 'block';
-            step2.style.display = 'none';
-            modal.style.display = 'flex';
+        // File status update
+        const fileInput = document.getElementById('adjunto_input');
+        const fileStatus = document.getElementById('file_status');
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileStatus.innerText = '✅ ' + e.target.files[0].name;
+                fileStatus.parentElement.style.borderColor = 'var(--brand-primary)';
+            }
         });
 
-        const closeModal = () => {
-            modal.style.display = 'none';
-        };
+        // Modal Logic
+        const modal = document.getElementById('proveedorModal');
+        const btnOpen = document.getElementById('btnOpenProveedorModal');
+        const btnClose = document.getElementById('btnCloseProveedorModal');
+        const btnCancel = document.getElementById('btnCancelProveedor');
+        const step1 = document.getElementById('proveedorStep1');
+        const step2 = document.getElementById('proveedorStep2');
+        const footer1 = document.getElementById('footerStep1');
+        const footer2 = document.getElementById('footerStep2');
 
-        btnCancel.addEventListener('click', closeModal);
+        btnOpen.onclick = (e) => { e.preventDefault(); modal.style.display = 'flex'; };
+        btnClose.onclick = btnCancel.onclick = () => { modal.style.display = 'none'; };
 
-        // Validar step1 y pasar a step2
-        btnNextStep1.addEventListener('click', () => {
-            const inputsStep1 = step1.querySelectorAll('input[required]');
-            let allValid = true;
-            inputsStep1.forEach(input => {
-                if (!input.checkValidity()) {
-                    allValid = false;
-                    input.reportValidity();
-                }
-            });
-            if (allValid) {
+        document.getElementById('btnNextStep1').onclick = () => {
+            const inputs = step1.querySelectorAll('input[required]');
+            let valid = true;
+            inputs.forEach(i => { if(!i.checkValidity()){ valid = false; i.reportValidity(); } });
+            if(valid) {
                 step1.style.display = 'none';
                 step2.style.display = 'block';
+                footer1.style.display = 'none';
+                footer2.style.display = 'flex';
             }
-        });
+        };
 
-        // Volver a step1
-        btnPrevStep2.addEventListener('click', () => {
+        document.getElementById('btnPrevStep2').onclick = () => {
             step2.style.display = 'none';
             step1.style.display = 'block';
-        });
+            footer2.style.display = 'none';
+            footer1.style.display = 'flex';
+        };
 
-        form.addEventListener('submit', (e) => {
+        // AJAX Create Provider
+        document.getElementById('formNuevoProveedor').onsubmit = function(e) {
             e.preventDefault();
-            
-            const rut = document.getElementById('prov_rut').value;
-            const nombre = document.getElementById('prov_nombre').value;
-            const razon_social = document.getElementById('prov_razon_social').value;
-            const direccion = document.getElementById('prov_direccion').value;
-            const comuna = document.getElementById('prov_comuna').value;
-            const region = document.getElementById('prov_region').value;
-            const telefono = document.getElementById('prov_telefono').value;
-
-            const numero_cuenta = document.getElementById('prov_numero_cuenta').value;
-            const tipo_cuenta = document.getElementById('prov_tipo_cuenta').value;
-            const banco = document.getElementById('prov_banco').value;
-            const nombre_titular = document.getElementById('prov_nombre_titular').value;
-            const rut_titular = document.getElementById('prov_rut_titular').value;
-            const correo = document.getElementById('prov_correo').value;
-            const certificado = document.getElementById('prov_certificado') ? document.getElementById('prov_certificado').files[0] : null;
-
-            const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-            const token = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+            Swal.fire({ title: 'Guardando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
             const formData = new FormData();
-            formData.append('rut', rut);
-            formData.append('nombre', nombre);
-            formData.append('razon_social', razon_social);
-            formData.append('direccion', direccion);
-            formData.append('comuna', comuna);
-            formData.append('region', region);
-            formData.append('telefono', telefono);
-            formData.append('numero_cuenta', numero_cuenta);
-            formData.append('tipo_cuenta', tipo_cuenta);
-            formData.append('banco', banco);
-            formData.append('nombre_titular', nombre_titular);
-            formData.append('rut_titular', rut_titular);
-            formData.append('correo', correo);
-            if (certificado) {
-                formData.append('certificado_bancario', certificado);
-            }
+            formData.append('rut', document.getElementById('prov_rut').value);
+            formData.append('nombre', document.getElementById('prov_nombre').value);
+            formData.append('razon_social', document.getElementById('prov_razon_social').value);
+            formData.append('direccion', document.getElementById('prov_direccion').value);
+            formData.append('comuna', document.getElementById('prov_comuna').value);
+            formData.append('region', document.getElementById('prov_region').value);
+            formData.append('telefono', document.getElementById('prov_telefono').value);
+            formData.append('numero_cuenta', document.getElementById('prov_numero_cuenta').value);
+            formData.append('tipo_cuenta', document.getElementById('prov_tipo_cuenta').value);
+            formData.append('banco', document.getElementById('prov_banco').value);
+            formData.append('correo', document.getElementById('prov_correo').value);
+            formData.append('nombre_titular', document.getElementById('prov_nombre_titular').value);
+            formData.append('rut_titular', document.getElementById('prov_rut_titular').value);
+            const cert = document.getElementById('prov_certificado').files[0];
+            if(cert) formData.append('certificado_bancario', cert);
 
             fetch('/proveedores/ajax-create', {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json'
-                },
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success && data.proveedor) {
-                    const newOption = new Option(data.proveedor.nombre, data.proveedor.nombre, true, true);
-                    newOption.setAttribute('data-rut', data.proveedor.rut); // Set the rut so it auto-fills
-                    if(selectProveedor) {
-                        selectProveedor.appendChild(newOption);
-                        selectProveedor.value = data.proveedor.nombre;
-                        
-                        // Trigger change so event listeners update the RUT field
-                        const event = new Event('change');
-                        selectProveedor.dispatchEvent(event);
-                    }
-                    
-                    
-                    
-                    showAlert('success', '¡Listo! Proveedor creado correctamente.');
-                    
-                    form.reset();
+                if (data.success) {
+                    const opt = new Option(data.proveedor.nombre, data.proveedor.nombre, true, true);
+                    opt.setAttribute('data-rut', data.proveedor.rut);
+                    nombreProveedorSelect.add(opt);
+                    rutProveedorInput.value = data.proveedor.rut;
+                    Swal.fire({ icon: 'success', title: 'Proveedor Guardado', text: 'El proveedor ha sido registrado exitosamente.', timer: 2000, showConfirmButton: false });
                     modal.style.display = 'none';
+                    this.reset();
                     step2.style.display = 'none';
                     step1.style.display = 'block';
+                    footer2.style.display = 'none';
+                    footer1.style.display = 'flex';
                 } else {
-                    let errorMsg = 'Error al crear proveedor. Verifica que todo esté correcto.';
-                    if (data.errors) {
-                        errorMsg = Object.values(data.errors).map(e => e.join(', ')).join('\n');
-                    } else if (data.message) {
-                        errorMsg = data.message;
-                    }
-                    showAlert('error', errorMsg);
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Verifique los datos.' });
                 }
             })
             .catch(err => {
-                console.error(err);
-                showAlert('error', 'Error al crear proveedor u ocurrió un problema de validación.');
+                Swal.fire({ icon: 'error', title: 'Error de Red', text: 'No se pudo contactar con el servidor.' });
             });
-        });
-    }
-});
-</script>
-
-
-<script>
-    async function addNewOption(selectId, dbType, title) {
-        const { value: newValue } = await Swal.fire({
-            title: title,
-            input: 'text',
-            inputLabel: 'Ingrese el nombre:',
-            inputPlaceholder: 'Escriba aquí...',
-            showCancelButton: true,
-            confirmButtonText: 'Agregar y Guardar',
-            cancelButtonText: 'Cancelar',
-            inputValidator: (value) => {
-                if (!value) {
-                    return '¡Debes escribir algo!'
-                }
-            }
-        });
-
-        if (newValue) {
-            try {
-                const response = await fetch('{{ route("oc.config.ajax.add") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        type: dbType,
-                        nombre: newValue
-                    })
-                });
-                const data = await response.json();
-                if (data.success && data.item) {
-                    // Agregar opción al select
-                    const select = document.getElementById(selectId);
-                    const option = new Option(data.item.nombre, data.item.nombre, true, true);
-                    select.add(option);
-                    
-                    Swal.fire({ icon: 'success', title: '¡Guardado!', text: 'El nuevo registro se ha creado correctamente.', toast: true, position: 'top', timer: 3000, timerProgressBar: true, showConfirmButton: false });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Error al guardar.' });
-                }
-            } catch (error) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión con el servidor.' });
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.querySelector('input[name="adjunto"]');
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                const fileName = e.target.files[0] ? e.target.files[0].name : 'No hay archivo adjunto.';
-                const pTag = e.target.closest('.attachment-box').querySelector('p');
-                if (pTag) {
-                    pTag.textContent = fileName !== 'No hay archivo adjunto.' ? '✅ Archivo seleccionado: ' + fileName : 'No hay archivo adjunto.';
-                }
-            });
-        }
+        };
     });
 </script>
-    </div>
-    </div>
-</body>
-</html>
+@endpush

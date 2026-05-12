@@ -37,6 +37,7 @@
             --chip: #e8f1fb;
             --success: #0f7a3e;
             --warning: #b97700;
+            --container-max-width: 1440px;
         }
 
         .sidebar, .sidebar *, .nav-label, .brand-text {
@@ -406,26 +407,28 @@
         }
 
         .topbar {
-            background: linear-gradient(90deg, #0f67ad 0%, #1a7fc4 50%, #0f67ad 100%);
+            background: linear-gradient(90deg, #0b5fa5 0%, #0f6bb6 50%, #0b5fa5 100%);
             color: white;
-            padding: 4px 20px;
+            padding: 0 24px;
             box-shadow: 0 4px 20px rgba(15, 107, 182, 0.15);
             position: sticky;
             top: 0;
-            z-index: 90;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 42px;
+            z-index: 100;
+            min-height: 64px;
             display: flex;
             align-items: center;
             width: 100%;
+            backdrop-filter: blur(10px);
         }
 
         .topbar-inner {
             width: 100%;
+            max-width: var(--container-max-width);
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            position: relative;
         }
 
         .brand {
@@ -433,70 +436,125 @@
             align-items: center;
             gap: 14px;
             flex-shrink: 0;
-            margin-left: 150px;
             position: relative;
             top: 2px;
         }
 
-        .topbar-logo-card {
-            height: 38px;
-            width: auto;
-            padding: 4px 20px;
-            border-radius: 10px;
-            background: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 4px 14px rgba(10, 30, 70, 0.16);
+        .topbar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .topbar-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.08);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        .topbar-badge span {
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .user-info-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .user-info-badge:hover {
+            background: rgba(255,255,255,0.18);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--brand-2);
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .topbar-logo {
-            height: 24px;
-            width: auto;
-            object-fit: contain;
-            filter: none;
-        }
-
-        .header-titles {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding-left: 18px;
-            margin-left: 36px;
-            border-left: 1px solid rgba(255, 255, 255, 0.28);
-        }
-
-        .header-titles h1 {
-            font-size: clamp(14px, 3vw, 18px);
             font-weight: 700;
-            color: #fff;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .header-titles p {
-            font-size: 12px;
-            font-weight: 500;
-            color: #cfe8ff;
-            margin: 2px 0 0;
+            font-size: 14px;
+            color: white;
         }
 
         .toolbar-actions {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .btn-logout {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: none;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            .topbar-center {
+                display: none;
+            }
         }
 
         .content-shell {
             flex: 1;
             padding: 24px 28px 32px;
-            max-width: 1440px;
-            margin-left: auto;
-            margin-right: auto;
             width: 100%;
+            max-width: 100%;
         }
 
         .content-card {
@@ -832,13 +890,9 @@
     </script>
     <div class="page">
         <aside class="sidebar is-initializing" id="sidebar">
-            <div class="sidebar-header">
-                <div class="brand-badge">
-                    <img src="{{ asset('rendicion_legacy/images/Logos sofofa (2) (1).png') }}" alt="Logo Sofofa">
-                </div>
-                <div class="brand-text">
-                    <div style="font-size: 15px;">Rendición de Gastos</div>
-                    <div class="brand-subtitle">Sistema de gestión</div>
+            <div class="sidebar-header" style="justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="brand-icon" style="width: 120px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem;">
+                    <img src="{{ asset('rendicion_legacy/images/logo-sofofa-white.png') }}" alt="SOFOFA Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
                 </div>
             </div>
 
@@ -919,46 +973,71 @@
         <div class="main-content">
             <header class="topbar">
                 <div class="topbar-inner">
+                    <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menú">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" x2="21" y1="6" y2="6"></line>
+                            <line x1="3" x2="21" y1="18" y2="18"></line>
+                        </svg>
+                    </button>
                     <div class="brand">
-                        <div class="topbar-logo-card">
-                            <img src="/img/logo.png" alt="Logo" class="topbar-logo">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="line-height: 1.25;">
+                                <h1 style="font-size: 16px; font-weight: 800; color: white; margin: 0; letter-spacing: -0.01em;">Rendición Gastos</h1>
+                                <p style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin: 0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.02em;">Fundación SOFOFA</p>
+                            </div>
                         </div>
-                        <div class="header-titles" style="display: flex; flex-direction: column; justify-content: center; padding-left: 20px; margin-left: 20px;">
-                            <h1>
-                                @isset($header_title)
-                                    {{ trim((string) $header_title) ?: 'Portal de Rendiciones' }}
-                                @else
-                                    {{ trim((string) $page_title) ?: 'Portal de Rendiciones' }}
-                                @endisset
-                            </h1>
-                            <p>{{ trim((string) $page_subtitle) ?: 'Gestion y seguimiento de solicitudes.' }}</p>
+                    </div>
+                    
+                    <div class="topbar-center">
+                        <div class="topbar-badge">
+                            <span>Portal de Gestión</span>
                         </div>
                     </div>
 
                     <div class="toolbar-actions">
                         @if($additionalButtons)
-                            {{ $additionalButtons }}
+                            <div style="display: flex; gap: 8px; padding-right: 12px; border-right: 1px solid rgba(255,255,255,0.15);">
+                                {{ $additionalButtons }}
+                            </div>
                         @endif
-
+                        
                         @if($backRoute)
-                            <a href="javascript:history.back();" class="btn btn-ghost">{{ $backLabel }}</a>
+                            <a href="{{ is_string($backRoute) ? $backRoute : 'javascript:history.back();' }}" class="btn-logout">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                                {{ $backLabel }}
+                            </a>
                         @endif
 
-                        @if($showLogout)
-                            @auth
-                                <form action="{{ route('logout') }}" method="POST" style="display: inline-flex; margin: 0; padding: 0; height: 100%;">
+                        @auth
+                            <div class="user-info-badge">
+                                <div class="user-avatar">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </div>
+                                <div style="line-height: 1.2; display: block;">
+                                    <div style="font-size: 12px; font-weight: 700; color: white; white-space: nowrap;">{{ Auth::user()->name }}</div>
+                                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; font-weight: 600; letter-spacing: 0.02em;">
+                                        @php
+                                            $roles = Auth::user()->getRoleNames();
+                                            $mainRole = $roles->first() ?? 'Usuario';
+                                        @endphp
+                                        {{ str_replace('_', ' ', $mainRole) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if($showLogout)
+                                <form action="{{ route('logout') }}" method="POST" style="margin:0;">
                                     @csrf
-                                    <button type="submit" class="btn btn-logout">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                            <polyline points="16 17 21 12 16 7"></polyline>
-                                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    <button type="submit" class="btn-logout">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                         </svg>
-                                        Cerrar sesión
+                                        <span>Salir</span>
                                     </button>
                                 </form>
-                            @endauth
-                        @endif
+                            @endif
+                        @endauth
                     </div>
                 </div>
             </header>

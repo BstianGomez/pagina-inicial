@@ -44,6 +44,31 @@
             margin-top: 0.3rem;
             max-width: fit-content;
         }
+
+        .btn-revisar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.4rem 1rem;
+            background: #0f6bb6;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 900;
+            border-radius: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 150ms ease;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(15, 107, 182, 0.2);
+            border: 1px solid transparent;
+        }
+
+        .btn-revisar:hover {
+            background: #0a4f86;
+            transform: scale(1.05);
+            color: #ffffff;
+            border-color: #083c66;
+        }
     </style>
 
 
@@ -122,7 +147,7 @@
                             ${{ number_format($report->total_amount, 0, ',', '.') }}
                         </td>
                         <td class="text-center py-4">
-                            <a href="{{ route('rendicion.reports.show', $report) }}" class="inline-flex items-center justify-center px-4 py-1.5 bg-sofofa-blue text-white text-[9px] font-black rounded-lg hover:bg-sofofa-blue-dark transition-all uppercase tracking-widest shadow-sm group-hover:scale-105">
+                            <a href="{{ route('rendicion.reports.show', $report) }}" class="btn-revisar">
                                 Revisar
                             </a>
                         </td>

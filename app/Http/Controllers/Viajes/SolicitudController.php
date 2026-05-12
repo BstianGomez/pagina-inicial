@@ -83,7 +83,7 @@ class SolicitudController extends Controller
             'estado'           => 'pendiente',
         ]);
 
-        return redirect('/mis-solicitudes')
+        return redirect()->route('viajes.mis-solicitudes')
             ->with('success', 'Solicitud enviada correctamente. Está pendiente de aprobación.');
     }
 

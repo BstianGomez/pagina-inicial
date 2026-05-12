@@ -134,7 +134,7 @@ class ExpenseController extends Controller
 		});
 
 		$msg = $action === 'submit' ? 'Rendición enviada correctamente.' : 'Gastos guardados como borrador correctamente.';
-		return redirect()->route('dashboard')->with('success', $msg);
+		return redirect()->route('rendicion.dashboard')->with('success', $msg);
 	}
 
 	public function drafts()
@@ -235,6 +235,6 @@ class ExpenseController extends Controller
 		}
 		$expense->save();
 
-		return redirect()->route('expenses.drafts')->with('success', 'Gasto actualizado correctamente.');
+		return redirect()->route('rendicion.expenses.drafts')->with('success', 'Gasto actualizado correctamente.');
 	}
 }

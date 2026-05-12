@@ -4,7 +4,9 @@
     'backRoute' => null,
     'backLabel' => '↩ Volver al listado',
     'showLogout' => true,
-    'additionalButtons' => null
+    'additionalButtons' => null,
+    'module' => 'OC',
+    'logoutRoute' => 'oc.logout'
 ])
 
 <header class="topbar">
@@ -17,13 +19,10 @@
             </svg>
         </button>
         <div class="brand">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="width: 32px; height: 32px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 6px;">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
-                </div>
-                <div style="line-height: 1.2;">
-                    <h1 style="font-size: 14px; font-weight: 800; color: white; margin: 0; letter-spacing: -0.01em;">Aplicación OC</h1>
-                    <p style="font-size: 10px; color: rgba(255, 255, 255, 0.7); margin: 0; text-transform: uppercase; font-weight: 600;">Fundación SOFOFA</p>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="line-height: 1.25;">
+                    <h1 style="font-size: 16px; font-weight: 800; color: white; margin: 0; letter-spacing: -0.01em;">{{ $module === 'OC' ? 'Aplicación OC' : ($module === 'Viajes' ? 'Portal Viajes' : 'Rendición Gastos') }}</h1>
+                    <p style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin: 0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.02em;">Fundación SOFOFA</p>
                 </div>
             </div>
         </div>
@@ -55,12 +54,12 @@
                     </div>
                     <div style="line-height: 1.2; display: block;">
                         <div style="font-size: 12px; font-weight: 700; color: white;">{{ Auth::user()->name }}</div>
-                        <div style="font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; font-weight: 600; letter-spacing: 0.02em;">{{ str_replace('_', ' ', Auth::user()->role ?? 'usuario') }}</div>
+                        <div style="font-size: 10px; color: rgba(255,255,255,0.6); text-transform: uppercase; font-weight: 600; letter-spacing: 0.02em;">{{ str_replace('_', ' ', Auth::user()->rol ?? 'usuario') }}</div>
                     </div>
                 </div>
 
                 @if($showLogout)
-                    <form action="{{ route('oc.logout') }}" method="POST" style="margin:0;">
+                    <form action="{{ route($logoutRoute) }}" method="POST" style="margin:0;">
                         @csrf
                         <button type="submit" class="btn-logout">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
@@ -75,9 +74,4 @@
     </div>
 </header>
 
-@if($title)
-<div class="banner">
-    <h1>{{ $title }}</h1>
-    <p>{{ $subtitle ?: 'Complete los campos para solicitar una orden de compra.' }}</p>
-</div>
-@endif
+{{-- Removed redundant banner to align with modernized design --}}

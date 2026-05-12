@@ -17,7 +17,20 @@ class UserManagementController extends Controller
             abort(403);
         }
 
-        $query = User::with('roles')->orderBy('name');
+        $query = User::with('roles')
+            ->where(function($q) {
+                $q->whereHas('roles', function($rq) {
+                    $rq->whereIn('name', ['Superadmin', 'Admin', 'Usuario']);
+                })
+                ->orWhereIn('rol', ['Superadmin', 'Admin', 'Usuario'])
+                ->orWhereIn('role', ['Superadmin', 'Admin', 'Usuario']);
+            })
+            ->orderByRaw("CASE 
+                WHEN rol = 'Superadmin' OR role = 'Superadmin' THEN 1 
+                WHEN rol = 'Admin' OR role = 'Admin' THEN 2 
+                WHEN rol = 'Usuario' OR role = 'Usuario' THEN 3 
+                ELSE 4 END")
+            ->orderBy('name');
 
         // Buscador por Correo
         if ($request->filled('search_email')) {
@@ -31,8 +44,14 @@ class UserManagementController extends Controller
 
         $users = $query->paginate(20)->withQueryString();
         
-        // Roles disponibles para asignar globalmente
-        $roles = Role::whereIn('name', ['Superadmin', 'Admin', 'Usuario'])->get();
+        // Roles disponibles para asignar globalmente (Orden jerárquico)
+        $roles = Role::whereIn('name', ['Superadmin', 'Admin', 'Usuario'])
+            ->orderByRaw("CASE 
+                WHEN name = 'Superadmin' THEN 1 
+                WHEN name = 'Admin' THEN 2 
+                WHEN name = 'Usuario' THEN 3 
+                ELSE 4 END")
+            ->get();
 
         return view('admin.users.index', compact('users', 'roles'));
     }

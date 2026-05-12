@@ -1,152 +1,139 @@
 @extends('viajes.layouts.dashboard')
 
 @section('title', 'Gestión de Usuarios')
-@section('subtitle', 'Administra los accesos al sistema')
+@section('subtitle', 'Administración centralizada de accesos y roles del sistema')
 
 @section('header')
-<div class="banner">
-    <h1>Gestión de Usuarios</h1>
-    <p>Crea, edita y administra los accesos al sistema.</p>
+<div class="ms-banner">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div>
+            <h1 class="ms-banner-title">Control de Accesos</h1>
+            <p class="ms-banner-sub">Gestione los perfiles de usuario, roles administrativos y permisos de módulo.</p>
+        </div>
+        <button onclick="document.getElementById('modalCrear').classList.add('active')" class="ms-btn-new" style="background: white; color: var(--brand-primary); border: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nuevo Usuario
+        </button>
+    </div>
 </div>
 @endsection
 
 @section('content')
 
-@if(session('success'))
-<div style="background: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 14px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    {{ session('success') }}
-</div>
-@endif
-
-@if(session('error'))
-<div style="background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; padding: 14px 20px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:20px;height:20px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    {{ session('error') }}
-</div>
-@endif
-
-<!-- Botón Nuevo Usuario + Modal -->
-<div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-    <button onclick="document.getElementById('modalCrear').style.display='flex'" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;height:18px;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Nuevo Usuario
-    </button>
+<!-- ── KPI SUMMARY ────────────────────────────────────── -->
+<div class="ms-kpi-grid" style="margin-bottom: 2rem;">
+    <div class="ms-kpi active">
+        <div class="ms-kpi-icon" style="background: rgba(15, 107, 182, 0.1); color: var(--brand-primary);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div class="ms-kpi-body">
+            <span class="ms-kpi-label">Usuarios Totales</span>
+            <span class="ms-kpi-value">{{ $users->count() }}</span>
+            <span class="ms-kpi-desc">Cuentas activas en sistema</span>
+        </div>
+    </div>
 </div>
 
-<!-- Tabla de usuarios -->
-<div class="card" style="padding: 0; overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #f8fafc; border-bottom: 2px solid var(--line);">
-                <th style="padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Nombre</th>
-                <th style="padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Correo</th>
-                <th style="padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Rol</th>
-                <th style="padding: 14px 20px; text-align: left; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Registrado</th>
-                <th style="padding: 14px 20px; text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($users as $user)
-            <tr style="border-bottom: 1px solid var(--line); transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
-                <td style="padding: 16px 20px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0b5fa5, #0f6bb6); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
+<!-- ── LISTADO DE USUARIOS ────────────────────────────── -->
+<div class="ms-table-card">
+    <div class="ms-table-header">
+        <h3 class="ms-table-title">Directorio de Usuarios</h3>
+        <div class="ms-search-wrap" style="width: 300px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="ms-search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="userSearch" placeholder="Buscar por nombre o email..." class="ms-search-input" onkeyup="filterUsers()">
+        </div>
+    </div>
+    <div class="ms-table-wrapper">
+        <table class="ms-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Perfil / Rol</th>
+                    <th>Registrado</th>
+                    <th style="text-align: center;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($users as $user)
+                @php
+                    $rolColors = [
+                        'super_admin' => ['bg' => '#1e1b4b', 'color' => '#c7d2fe', 'label' => 'Super Admin'],
+                        'admin'       => ['bg' => '#eff6ff', 'color' => '#1d4ed8', 'label' => 'Administrador'],
+                        'aprobador'   => ['bg' => '#f0fdf4', 'color' => '#15803d', 'label' => 'Aprobador'],
+                        'gestor'      => ['bg' => '#fefce8', 'color' => '#a16207', 'label' => 'Gestor'],
+                        'usuario'     => ['bg' => '#faf5ff', 'color' => '#7e22ce', 'label' => 'Usuario'],
+                    ];
+                    $rc = $rolColors[$user->rol ?? 'usuario'] ?? ['bg' => '#f1f5f9', 'color' => '#475569', 'label' => $user->rol ?? '—'];
+                    $esProtegido = $user->isSuperAdmin() && !Auth::user()->isSuperAdmin();
+                @endphp
+                <tr data-search="{{ strtolower($user->name . ' ' . $user->email) }}">
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0f6bb6 0%, #0b5fa5 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(15, 107, 182, 0.2);">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                            <span style="font-weight: 800; color: var(--text-main);">{{ $user->name }}</span>
                         </div>
-                        <span style="font-weight: 600; color: var(--ink);">{{ $user->name }}</span>
-                    </div>
-                </td>
-                <td style="padding: 16px 20px; color: var(--muted); font-size: 14px;">{{ $user->email }}</td>
-                <td style="padding: 16px 20px;">
-                    @php
-                        $rolColors = [
-                            'super_admin' => ['bg' => '#1e1b4b', 'color' => '#c7d2fe', 'label' => 'Super Admin'],
-                            'admin'       => ['bg' => '#eff6ff', 'color' => '#1d4ed8', 'label' => 'Administrador'],
-                            'aprobador'   => ['bg' => '#f0fdf4', 'color' => '#15803d', 'label' => 'Aprobador'],
-                            'gestor'      => ['bg' => '#fefce8', 'color' => '#a16207', 'label' => 'Gestor'],
-                            'usuario'     => ['bg' => '#faf5ff', 'color' => '#7e22ce', 'label' => 'Usuario'],
-                        ];
-                        $rc = $rolColors[$user->rol ?? 'usuario'] ?? ['bg' => '#f1f5f9', 'color' => '#475569', 'label' => $user->rol ?? '—'];
-                        $esProtegido = $user->isSuperAdmin() && !Auth::user()->isSuperAdmin();
-@endphp
-                    <span style="background: {{ $rc['bg'] }}; color: {{ $rc['color'] }}; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;">
-                        {{ $rc['label'] }}
-                    </span>
-                </td>
-                <td style="padding: 16px 20px; color: var(--muted); font-size: 13px;">{{ $user->created_at?->format('d/m/Y') ?? '—' }}</td>
-                <td style="padding: 16px 20px; text-align: center;">
-                    <div style="display: flex; gap: 8px; justify-content: center;">
-                        @if(!$esProtegido)
-                        <!-- Editar -->
-                        <button onclick="abrirEditar({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->email }}', '{{ $user->rol ?? '' }}', @json($user->assigned_apps ?? ($user->assigned_app ? [$user->assigned_app] : [])))"
-                            style="background: #eff6ff; color: #1d4ed8; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            Editar
-                        </button>
-                        <!-- Eliminar -->
-                        <form action="{{ route('viajes.usuarios.destroy', $user) }}" method="POST" onsubmit="return confirm('¿Eliminar a {{ $user->name }}?');">
-                            @csrf @method('DELETE')
-                            <button type="submit"
-                                style="background: #fff1f2; color: #be123c; border: none; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;height:14px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                Eliminar
-                            </button>
-                        </form>
-                        @else
-                        <span style="font-size:12px;color:var(--muted);font-style:italic;">Protegido</span>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="5" style="padding: 60px 20px; text-align: center; color: var(--muted);">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:48px;height:48px;margin:0 auto 12px;display:block;opacity:0.3;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    No hay usuarios registrados aún.
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                    </td>
+                    <td style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">{{ $user->email }}</td>
+                    <td>
+                        <span class="chip" style="background: {{ $rc['bg'] }}; color: {{ $rc['color'] }};">
+                            {{ $rc['label'] }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.85rem; color: var(--text-muted);">{{ $user->created_at?->format('d/m/Y') ?? '—' }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            @if(!$esProtegido)
+                                <button onclick="abrirEditar({{ $user->id }}, '{{ addslashes($user->name) }}', '{{ $user->email }}', '{{ $user->rol ?? '' }}')" class="ms-btn-reset" style="padding: 0.5rem; border-radius: 0.75rem; color: var(--brand-primary); background: #eff6ff;" title="Editar">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                                <form action="{{ route('viajes.usuarios.destroy', $user) }}" method="POST" onsubmit="return confirm('¿Eliminar definitivamente a {{ $user->name }}?');" style="display: inline;">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="ms-btn-reset" style="padding: 0.5rem; border-radius: 0.75rem; color: #dc2626; background: #fef2f2;" title="Eliminar">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    </button>
+                                </form>
+                            @else
+                                <span style="font-size: 0.75rem; font-style: italic; color: var(--text-muted);">Protegido</span>
+                            @endif
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="5" style="padding: 4rem; text-align: center; color: var(--text-muted);">Sin usuarios registrados.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- ── MODAL CREAR USUARIO ──────────────────────────── -->
-<div id="modalCrear" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:2000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:20px; padding:36px; width:100%; max-width:500px; box-shadow:0 25px 60px rgba(0,0,0,0.2); position:relative;">
-        <button onclick="document.getElementById('modalCrear').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--muted);">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:22px;height:22px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-        <h3 style="font-size:20px;font-weight:700;margin:0 0 24px;">Nuevo Usuario</h3>
-        <form action="{{ route('viajes.usuarios.store') }}" method="POST">
+<!-- ── MODAL CREAR ────────────────────────────────────── -->
+<div id="modalCrear" class="ms-modal" onclick="cerrarModales(event)">
+    <div class="ms-modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+        <div class="ms-modal-header">
+            <h2 class="ms-table-title">Registrar Nuevo Usuario</h2>
+            <button class="ms-btn-reset" style="padding: 0.5rem;" onclick="document.getElementById('modalCrear').classList.remove('active')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form action="{{ route('viajes.usuarios.store') }}" method="POST" style="padding: 2rem;">
             @csrf
-            
-            @if($errors->any())
-                <div style="background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; border: 1px solid #fee2e2;">
-                    {{ $errors->first() }}
-                </div>
-            @endif
-            <div style="display:grid;gap:16px;">
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div class="form-field">
-                    <label class="form-label">Nombre completo</label>
-                    <input type="text" name="name" class="form-control" placeholder="Ej: Juan Pérez" required>
-                </div>
-
-                <div class="form-field">
-                    <label class="form-label">Correo electrónico</label>
-                    <input type="email" name="email" class="form-control" placeholder="usuario@empresa.cl" required>
+                    <label class="form-label">Nombre Completo</label>
+                    <input type="text" name="name" class="ms-search-input" placeholder="Juan Pérez" required style="padding-left: 1rem;">
                 </div>
                 <div class="form-field">
-                    <label class="form-label">Rol</label>
-                    <select name="rol" class="form-select" required>
-                        <option value="">Selecciona un rol...</option>
-                        @if(Auth::check() && Auth::user()->isSuperAdmin())
-                        <option value="super_admin">Super Administrador</option>
-                        @endif
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" name="email" class="ms-search-input" placeholder="correo@empresa.cl" required style="padding-left: 1rem;">
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Perfil de Usuario</label>
+                    <select name="rol" class="ms-select" required style="width: 100%;">
+                        <option value="">Seleccione Rol...</option>
+                        @if(Auth::user()->isSuperAdmin()) <option value="super_admin">Super Administrador</option> @endif
                         <option value="admin">Administrador</option>
                         <option value="aprobador">Aprobador</option>
                         <option value="gestor">Gestor</option>
@@ -154,46 +141,42 @@
                     </select>
                 </div>
                 <div class="form-field">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" name="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
+                    <label class="form-label">Contraseña Inicial</label>
+                    <input type="password" name="password" class="ms-search-input" placeholder="Mín. 8 caracteres" required style="padding-left: 1rem;">
                 </div>
             </div>
-            <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:28px;">
-                <button type="button" onclick="document.getElementById('modalCrear').style.display='none'"
-                    style="background:#f1f5f9;color:var(--ink);border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn-primary">Crear Usuario</button>
+            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button type="button" class="ms-btn-reset" onclick="document.getElementById('modalCrear').classList.remove('active')">Cancelar</button>
+                <button type="submit" class="ms-btn-new" style="min-width: 150px; justify-content: center;">Crear Cuenta</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- ── MODAL EDITAR USUARIO ──────────────────────────── -->
-<div id="modalEditar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:2000; align-items:center; justify-content:center;">
-    <div style="background:white; border-radius:20px; padding:36px; width:100%; max-width:500px; box-shadow:0 25px 60px rgba(0,0,0,0.2); position:relative;">
-        <button onclick="document.getElementById('modalEditar').style.display='none'" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--muted);">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:22px;height:22px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-        <h3 style="font-size:20px;font-weight:700;margin:0 0 24px;">Editar Usuario</h3>
-        <form id="formEditar" action="" method="POST">
+<!-- ── MODAL EDITAR ────────────────────────────────────── -->
+<div id="modalEditar" class="ms-modal" onclick="cerrarModales(event)">
+    <div class="ms-modal-content" onclick="event.stopPropagation()" style="max-width: 500px;">
+        <div class="ms-modal-header">
+            <h2 class="ms-table-title">Modificar Usuario</h2>
+            <button class="ms-btn-reset" style="padding: 0.5rem;" onclick="document.getElementById('modalEditar').classList.remove('active')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        <form id="formEditar" method="POST" style="padding: 2rem;">
             @csrf @method('PUT')
-            <div style="display:grid;gap:16px;">
+            <div style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div class="form-field">
-                    <label class="form-label">Nombre completo</label>
-                    <input type="text" id="editNombre" name="name" class="form-control" required>
+                    <label class="form-label">Nombre</label>
+                    <input type="text" id="editNombre" name="name" class="ms-search-input" required style="padding-left: 1rem;">
                 </div>
-
                 <div class="form-field">
-                    <label class="form-label">Correo electrónico</label>
-                    <input type="email" id="editEmail" name="email" class="form-control" required>
+                    <label class="form-label">Email</label>
+                    <input type="email" id="editEmail" name="email" class="ms-search-input" required style="padding-left: 1rem;">
                 </div>
                 <div class="form-field">
                     <label class="form-label">Rol</label>
-                    <select id="editRol" name="rol" class="form-select" required>
-                        @if(Auth::check() && Auth::user()->isSuperAdmin())
-                        <option value="super_admin">Super Administrador</option>
-                        @endif
+                    <select id="editRol" name="rol" class="ms-select" required style="width: 100%;">
+                        @if(Auth::user()->isSuperAdmin()) <option value="super_admin">Super Administrador</option> @endif
                         <option value="admin">Administrador</option>
                         <option value="aprobador">Aprobador</option>
                         <option value="gestor">Gestor</option>
@@ -201,46 +184,39 @@
                     </select>
                 </div>
                 <div class="form-field">
-                    <label class="form-label">Nueva contraseña <span style="color:var(--muted);font-weight:400;">(opcional)</span></label>
-                    <input type="password" name="password" class="form-control" placeholder="Dejar vacío para no cambiar">
-                </div>
-                <div class="form-field">
-                    <label class="form-label">Confirmar nueva contraseña</label>
-                    <input type="password" name="password_confirmation" class="form-control">
+                    <label class="form-label">Nueva Contraseña <span style="opacity: 0.6; font-weight: 400;">(opcional)</span></label>
+                    <input type="password" name="password" class="ms-search-input" placeholder="Dejar vacío para mantener actual" style="padding-left: 1rem;">
                 </div>
             </div>
-            <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:28px;">
-                <button type="button" onclick="document.getElementById('modalEditar').style.display='none'"
-                    style="background:#f1f5f9;color:var(--ink);border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;">
-                    Cancelar
-                </button>
-                <button type="submit" class="btn-primary">Guardar Cambios</button>
+            <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button type="button" class="ms-btn-reset" onclick="document.getElementById('modalEditar').classList.remove('active')">Cancelar</button>
+                <button type="submit" class="ms-btn-new" style="min-width: 150px; justify-content: center;">Guardar Cambios</button>
             </div>
         </form>
     </div>
 </div>
 
+@push('scripts')
 <script>
-function abrirEditar(id, nombre, email, rol, assignedApps) {
+function filterUsers() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    document.querySelectorAll('#usersTable tbody tr').forEach(tr => {
+        tr.style.display = (tr.getAttribute('data-search') || '').includes(q) ? '' : 'none';
+    });
+}
+
+function abrirEditar(id, nombre, email, rol) {
     document.getElementById('editNombre').value = nombre;
     document.getElementById('editEmail').value = email;
     document.getElementById('editRol').value = rol;
-    document.getElementById('formEditar').action = '{{ url('viajes/usuarios') }}/' + id;
-
-    document.getElementById('modalEditar').style.display = 'flex';
+    document.getElementById('formEditar').action = `{{ url('viajes/usuarios') }}/${id}`;
+    document.getElementById('modalEditar').classList.add('active');
 }
-// Cerrar modal al hacer clic en el fondo
-['modalCrear','modalEditar'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
-        if (e.target === this) this.style.display = 'none';
-    });
-});
-    // Reabrir modal si hay errores
-    @if($errors->any())
-    window.onload = function() {
-        document.getElementById('modalCrear').style.display = 'flex';
-    };
-    @endif
+
+function cerrarModales(e) {
+    document.querySelectorAll('.ms-modal').forEach(m => m.classList.remove('active'));
+}
 </script>
+@endpush
 
 @endsection

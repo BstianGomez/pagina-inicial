@@ -620,13 +620,13 @@
             <table class="table-sofofa">
                 <thead>
                     <tr>
-                        <th class="text-left px-3 min-w-[50px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">ID</th>
-                        <th class="text-left px-3 min-w-[50px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">CECO</th>
-                        <th class="text-left px-3 min-w-[90px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">CATEGORÍA</th>
-                        <th class="text-left px-3 min-w-[120px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">TÍTULO</th>
-                        <th class="text-left px-3 min-w-[130px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">ESTADO</th>
-                        <th class="text-left px-3 min-w-[100px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">SOLICITANTE</th>
-                        <th class="text-right px-3 min-w-[100px] whitespace-nowrap uppercase tracking-widest text-[9px] font-bold text-slate-500 border-b border-slate-100">MONTO</th>
+                        <th class="text-left px-3 min-w-[50px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">ID</th>
+                        <th class="text-left px-3 min-w-[50px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">CECO</th>
+                        <th class="text-left px-3 min-w-[90px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">CATEGORÍA</th>
+                        <th class="text-left px-3 min-w-[120px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">TÍTULO</th>
+                        <th class="text-left px-3 min-w-[130px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">ESTADO</th>
+                        <th class="text-left px-3 min-w-[100px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">SOLICITANTE</th>
+                        <th class="text-right px-3 min-w-[100px] whitespace-nowrap uppercase tracking-widest text-xs font-bold text-slate-500 border-b border-slate-100">MONTO</th>
                         <th class="w-10 px-3 text-center border-b border-slate-100"></th>
                     </tr>
                 </thead>
@@ -698,14 +698,14 @@
                             $rowClasses = $isDuplicate ? 'is-duplicate-row bg-red-50/20 hover:bg-red-50/80 transition-colors duration-150 group cursor-pointer' : 'hover:bg-slate-50/80 transition-colors duration-150 group cursor-pointer';
                         @endphp
                         <tr class="{{ $rowClasses }}" onclick="window.location='{{ $route }}'">
-                            <td class="font-bold text-slate-400 text-[10px] px-3 py-6">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
-                            <td class="font-bold text-slate-700 text-[10px] px-3 py-6">{{ $report->expenses->first()->ceco->code ?? 'N/A' }}</td>
+                            <td class="font-bold text-slate-400 text-sm px-3 py-6">#{{ str_pad($report->id, 5, '0', STR_PAD_LEFT) }}</td>
+                            <td class="font-bold text-slate-700 text-sm px-3 py-6">{{ $report->expenses->first()->ceco->code ?? 'N/A' }}</td>
                             <td class="px-3 py-6">
-                                <span style="display:inline-flex;align-items:center;padding:0.3rem 0.6rem;border-radius:0.6rem;font-size:0.58rem;font-weight:900;background:{{ $categoryColor['bg'] }};color:{{ $categoryColor['text'] }};border:1px solid {{ $categoryColor['border'] }};text-transform:uppercase;letter-spacing:0.06em;">
+                                <span style="display:inline-flex;align-items:center;padding:0.4rem 0.8rem;border-radius:0.6rem;font-size:0.75rem;font-weight:900;background:{{ $categoryColor['bg'] }};color:{{ $categoryColor['text'] }};border:1px solid {{ $categoryColor['border'] }};text-transform:uppercase;letter-spacing:0.06em;">
                                     {{ $categoryName }}
                                 </span>
                             </td>
-                            <td class="font-medium text-slate-800 text-[12px] px-3 py-6">
+                            <td class="font-medium text-slate-800 text-base px-3 py-6">
                                 <span class="truncate max-w-[200px] block" style="{{ $isDuplicate ? 'color: #be123c;' : '' }}">{{ $report->title }}</span>
                                 @if($isDuplicate)
                                     @php
@@ -720,13 +720,13 @@
                                 @endif
                             </td>
                             <td class="px-3 py-6">
-                                <span style="display:inline-flex;align-items:center;padding:0.3rem 0.55rem;border-radius:0.6rem;font-size:0.58rem;font-weight:800;background:{{ $cfg['bg'] }};color:{{ $cfg['text'] }};border:1px solid {{ $cfg['border'] }};white-space:nowrap;">
-                                    <span style="height:0.38rem;width:0.38rem;border-radius:999px;background:{{ $cfg['dot'] }};margin-right:0.36rem;"></span>
+                                <span style="display:inline-flex;align-items:center;padding:0.4rem 0.8rem;border-radius:0.6rem;font-size:0.75rem;font-weight:800;background:{{ $cfg['bg'] }};color:{{ $cfg['text'] }};border:1px solid {{ $cfg['border'] }};white-space:nowrap;">
+                                    <span style="height:0.45rem;width:0.45rem;border-radius:999px;background:{{ $cfg['dot'] }};margin-right:0.45rem;"></span>
                                     {{ $report->status }}
                                 </span>
                             </td>
-                            <td class="text-slate-600 text-[10px] font-medium px-3 py-6">{{ $report->user->name }}</td>
-                            <td class="text-right font-bold text-slate-900 text-[12px] px-3 py-6">${{ number_format($report->total_amount, 0, ',', '.') }}</td>
+                            <td class="text-slate-600 text-sm font-medium px-3 py-6">{{ $report->user->name }}</td>
+                            <td class="text-right font-bold text-slate-900 text-base px-3 py-6">${{ number_format($report->total_amount, 0, ',', '.') }}</td>
                             <td class="text-center py-6">
                                 <a href="{{ $route }}" class="text-slate-300 group-hover:text-sofofa-blue transition-all">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>

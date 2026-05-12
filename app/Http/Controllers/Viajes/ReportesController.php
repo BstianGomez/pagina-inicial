@@ -166,4 +166,42 @@ class ReportesController extends Controller
             ], 500);
         }
     }
+
+    public function sendGmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'pdf' => 'required|string',
+            ]);
+
+            $email = $request->input('email');
+            $pdfBase64 = $request->input('pdf');
+
+            $parts = explode('base64,', $pdfBase64);
+            if (count($parts) === 2) {
+                $pdfData = base64_decode($parts[1]);
+            } else {
+                // Si por alguna razón no viene con el encabezado data URI, intentamos decodificarlo directo
+                $pdfData = base64_decode($pdfBase64);
+                if (!$pdfData) {
+                    return response()->json(['success' => false, 'message' => 'Formato de PDF inválido.']);
+                }
+            }
+
+            \Illuminate\Support\Facades\Mail::raw('Adjunto encontrarás el reporte PDF del Dashboard de Viajes.', function ($message) use ($email, $pdfData) {
+                $message->to($email)
+                    ->bcc(auth()->user()->email)
+                    ->subject('Dashboard Viajes - Reporte PDF')
+                    ->attachData($pdfData, 'dashboard_viajes_' . date('Y-m-d_His') . '.pdf', [
+                        'mime' => 'application/pdf',
+                    ]);
+            });
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error enviando correo de Viajes: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }

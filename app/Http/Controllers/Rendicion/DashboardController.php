@@ -316,4 +316,47 @@ class DashboardController extends Controller
 
         return view('rendicion.analytics', compact('counts', 'amounts', 'monthly', 'categoryStats', 'recentReports', 'isAdmin', 'monthlyLabels', 'chartsByFilter'));
     }
+
+    public function sendGmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'pdf_data' => 'required|string'
+        ]);
+
+        try {
+            $pdfData = $request->input('pdf_data');
+            $email = $request->input('email');
+            
+            // Clean up base64 prefix if present
+            if (strpos($pdfData, 'base64,') !== false) {
+                $parts = explode('base64,', $pdfData);
+                $pdfData = $parts[1] ?? $parts[0];
+            }
+            
+            $decodedData = base64_decode($pdfData);
+            
+            if ($decodedData === false) {
+                throw new \Exception('Failed to decode base64 PDF data.');
+            }
+
+            \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($email, $decodedData) {
+                $message->to($email)
+                        ->subject('Reporte de Analytics de Rendiciones')
+                        ->html('<p>Adjunto encontrará el reporte estadístico de Rendiciones.</p>')
+                        ->attachData($decodedData, 'Analytics_Rendiciones.pdf', [
+                            'mime' => 'application/pdf',
+                        ]);
+            });
+
+            return response()->json(['success' => true, 'message' => 'Reporte enviado exitosamente a ' . $email]);
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error sending Rendicion Analytics PDF: ' . $e->getMessage());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error al enviar el reporte: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
