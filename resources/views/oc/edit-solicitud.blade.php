@@ -235,6 +235,22 @@
                     </select>
                 </div>
                 <div class="form-group-modern">
+                    <label class="label-modern">N° de Proyecto / OT / OP <span class="required-star">*</span></label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select name="project_prefix" class="input-premium select-premium" style="width: 85px !important; min-width: 85px !important; padding-right: 1.5rem;" required>
+                            @php
+                                $currentFull = $extras['numero_proyecto'] ?? $extras['numero_ot'] ?? '';
+                                $currentPrefix = $extras['project_prefix'] ?? (str_contains($currentFull, '-') ? explode('-', $currentFull)[0] : 'OC');
+                                $currentNumber = $extras['project_number'] ?? (str_contains($currentFull, '-') ? explode('-', $currentFull)[1] : $currentFull);
+                            @endphp
+                            <option value="OC" {{ $currentPrefix === 'OC' ? 'selected' : '' }}>OC</option>
+                            <option value="OT" {{ $currentPrefix === 'OT' ? 'selected' : '' }}>OT</option>
+                            <option value="OP" {{ $currentPrefix === 'OP' ? 'selected' : '' }}>OP</option>
+                        </select>
+                        <input type="text" class="input-premium" name="project_number" value="{{ old('project_number', $currentNumber) }}" required placeholder="Solo número" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
+                </div>
+                <div class="form-group-modern">
                     <label class="label-modern">Tipo de Documento <span class="required-star">*</span></label>
                     <select class="input-premium select-premium" name="tipo_documento" required>
                         <option value="Factura" {{ $solicitud->tipo_documento == 'Factura' ? 'selected' : '' }}>Factura</option>

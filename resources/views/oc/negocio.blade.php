@@ -261,7 +261,14 @@
                 </div>
                 <div class="form-group-modern">
                     <label class="label-modern">N° de Proyecto / OT / OP <span class="required-star">*</span></label>
-                    <input type="text" class="input-premium" name="numero_proyecto" required placeholder="Ej: PRJ-2024-001">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select name="project_prefix" class="input-premium select-premium" style="width: 85px !important; min-width: 85px !important; padding-right: 1.5rem;" required>
+                            <option value="OC" {{ old('project_prefix') === 'OC' ? 'selected' : '' }}>OC</option>
+                            <option value="OT" {{ old('project_prefix') === 'OT' ? 'selected' : '' }}>OT</option>
+                            <option value="OP" {{ old('project_prefix') === 'OP' ? 'selected' : '' }}>OP</option>
+                        </select>
+                        <input type="text" class="input-premium" name="project_number" value="{{ old('project_number') }}" required placeholder="Solo número" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                    </div>
                 </div>
                 <div class="form-group-modern">
                     <label class="label-modern">Tipo Documento <span class="required-star">*</span></label>

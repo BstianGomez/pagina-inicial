@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="background-color: #f5f7fb;">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -415,7 +415,7 @@
     </style>
     @stack('styles')
 </head>
-<body>
+<body style="background-color: #f5f7fb;">
 
     <div class="page">
         @include('oc.partials.sidebar', ['active' => $active ?? ''])

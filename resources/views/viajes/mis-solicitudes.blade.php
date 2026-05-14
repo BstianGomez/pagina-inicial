@@ -226,10 +226,14 @@
                     <div style="background: #f8fafc; padding: 1.25rem; border-radius: 1rem; border: 1px solid var(--border-color);">
                         <h4 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--brand-primary); margin-bottom: 1rem;">Detalles del Destino</h4>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted); font-weight: 600;">Origen:</span><span id="m-origen" style="font-weight: 700;"></span></div>
                             <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted); font-weight: 600;">Destino:</span><span id="m-destino" style="font-weight: 700;"></span></div>
                             <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted); font-weight: 600;">CECO:</span><span id="m-ceco" style="font-weight: 700;"></span></div>
                             <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted); font-weight: 600;">Ida:</span><span id="m-fecha-v" style="font-weight: 700;"></span></div>
                             <div style="display: flex; justify-content: space-between;"><span style="color: var(--text-muted); font-weight: 600;">Regreso:</span><span id="m-fecha-r" style="font-weight: 700;"></span></div>
+                            <div id="m-proyecto-row" style="display:none; justify-content: space-between; border-top: 1px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem;">
+                                <span style="color: var(--text-muted); font-weight: 600;">Proyecto:</span><span id="m-proyecto" style="font-weight: 800; color: var(--brand-primary);"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -351,10 +355,18 @@ function abrirModal(sol) {
     }
 
     document.getElementById('m-tipo').innerHTML = `<span class="chip chip-${sol.tipo}">${sol.tipo.toUpperCase()}</span>`;
+    document.getElementById('m-origen').textContent = sol.origen || '—';
     document.getElementById('m-destino').textContent = sol.destino;
     document.getElementById('m-ceco').textContent = sol.ceco;
     document.getElementById('m-fecha-v').textContent = formatDate(sol.fecha_viaje);
     document.getElementById('m-fecha-r').textContent = sol.fecha_retorno ? formatDate(sol.fecha_retorno) : '—';
+    
+    if (sol.project_number) {
+        document.getElementById('m-proyecto-row').style.display = 'flex';
+        document.getElementById('m-proyecto').textContent = sol.project_number;
+    } else {
+        document.getElementById('m-proyecto-row').style.display = 'none';
+    }
     document.getElementById('m-motivo').textContent = sol.motivo;
     document.getElementById('m-alojamiento').textContent = sol.alojamiento ? 'SÍ' : 'NO';
     document.getElementById('m-traslado').textContent = sol.traslado ? 'SÍ' : 'NO';

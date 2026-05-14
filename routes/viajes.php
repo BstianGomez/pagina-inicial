@@ -20,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/solicitudes',    [SolicitudController::class, 'store'])->name('solicitudes.store');
     Route::get('/mis-solicitudes', [SolicitudController::class, 'index'])->name('mis-solicitudes');
 
+    // Solicitudes con Proyecto
+    Route::get('/solicitudes-proyecto',  [SolicitudController::class, 'createProyecto'])->name('solicitudes-proyecto.create');
+    Route::post('/solicitudes-proyecto', [SolicitudController::class, 'storeProyecto'])->name('solicitudes-proyecto.store');
+
     // Aprobaciones
     Route::get('/aprobador',  [SolicitudController::class, 'panelAprobador'])->name('aprobador');
     Route::post('/solicitudes/{solicitud}/aprobar',  [SolicitudController::class, 'aprobar'])->name('solicitudes.aprobar');

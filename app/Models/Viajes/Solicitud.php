@@ -17,7 +17,8 @@ class Solicitud extends Model
     protected $fillable = [
         'user_id', 'tipo',
         'nombre_externo', 'correo_externo', 'rut', 'fecha_nacimiento', 'cargo_externo',
-        'ceco', 'destino', 'fecha_viaje', 'fecha_retorno', 'motivo', 'alojamiento', 'traslado', 'gastos', 'pv', 'monto_estimado',
+        'ceco', 'origen', 'destino', 'fecha_viaje', 'fecha_retorno', 'motivo', 'alojamiento', 'traslado', 'gastos', 'pv', 'monto_estimado',
+        'project_number', 'project_name',
         'estado',
         'aprobado_por', 'aprobado_en', 'comentario_aprobador',
         'rechazado_por', 'rechazado_en', 'comentario_rechazo',

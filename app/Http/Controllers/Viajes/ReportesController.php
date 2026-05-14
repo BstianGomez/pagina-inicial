@@ -130,7 +130,7 @@ class ReportesController extends Controller
                     return [
                         'id' => $s->id,
                         'nombre' => $s->solicitante->name ?? 'N/A',
-                        'destino' => $s->destino,
+                        'destino' => $s->origen ? $s->origen . ' → ' . $s->destino : $s->destino,
                         'fecha' => $s->fecha_viaje ? $s->fecha_viaje->format('d M, Y') : 'N/A',
                         'estado' => $s->estado,
                     ];

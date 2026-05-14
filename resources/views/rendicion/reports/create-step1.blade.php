@@ -31,6 +31,39 @@
                         @error('title') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
     
+                    @if($report->project_number)
+                    @php
+                        $currentPrefix = 'OT';
+                        $currentNumber = '';
+                        if ($report->project_number !== 'PROYECTO_PENDIENTE') {
+                            $parts = explode('-', $report->project_number);
+                            if (count($parts) >= 2) {
+                                $currentPrefix = $parts[0];
+                                $currentNumber = implode('-', array_slice($parts, 1));
+                            } else {
+                                $currentNumber = $report->project_number;
+                            }
+                        }
+                    @endphp
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Documento y Número (OT / OC / OP) <span style="color: #ef4444;">*</span></label>
+                        <div class="flex gap-2 items-center">
+                            <select name="project_prefix" style="width: 70px !important; min-width: 70px !important; flex: none !important;" class="px-2 py-1.5 rounded-lg border-slate-200 focus:border-sofofa-blue focus:ring-sofofa-blue transition-shadow shadow-sm font-black text-xs text-center">
+                                <option value="OT" {{ old('project_prefix', $currentPrefix) === 'OT' ? 'selected' : '' }}>OT</option>
+                                <option value="OC" {{ old('project_prefix', $currentPrefix) === 'OC' ? 'selected' : '' }}>OC</option>
+                                <option value="OP" {{ old('project_prefix', $currentPrefix) === 'OP' ? 'selected' : '' }}>OP</option>
+                            </select>
+                            <input type="text" name="project_number" id="project_number" placeholder="Nº"
+                                value="{{ old('project_number', $currentNumber) }}"
+                                style="width: 140px !important; min-width: 140px !important; flex: none !important;"
+                                class="px-2 py-1.5 rounded-lg border-slate-200 focus:border-sofofa-blue focus:ring-sofofa-blue transition-shadow shadow-sm text-xs font-semibold"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                            >
+                        </div>
+                        @error('project_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    @endif
+    
                     <div>
                         <label for="ceco_id" class="block text-sm font-semibold text-slate-700 mb-2">Centro de Costo (CECO)</label>
                         <select name="ceco_id" id="ceco_id"
@@ -58,3 +91,19 @@
         </div>
     </div>
 </x-rendicion.layouts.app>
+
+@push('scripts')
+<script>
+function syncProjectFields(fullValue) {
+    if (!fullValue) return;
+    var parts = fullValue.split('-');
+    document.getElementById('hidden_prefix').value = parts[0] || 'OT';
+    document.getElementById('hidden_number').value = parts.slice(1).join('-') || '';
+}
+// Sync on page load for pre-selected value
+document.addEventListener('DOMContentLoaded', function() {
+    var sel = document.getElementById('project_number_full');
+    if (sel && sel.value) syncProjectFields(sel.value);
+});
+</script>
+@endpush

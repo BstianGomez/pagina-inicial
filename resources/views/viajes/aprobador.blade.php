@@ -269,7 +269,7 @@ function verDetalles(btn) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
             <div>
                 <h4 style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 1rem;">Itinerario</h4>
-                <div style="font-size: 1rem; font-weight: 800; color: var(--brand-primary); margin-bottom: 0.5rem;">${sol.destino}</div>
+                <div style="font-size: 1rem; font-weight: 800; color: var(--brand-primary); margin-bottom: 0.25rem;">${sol.origen ? sol.origen + ' <span style="color:var(--text-muted);">→</span> ' : ''}${sol.destino}</div>
                 <div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem;">Salida: ${new Date(sol.fecha_viaje).toLocaleDateString('es-CL')}</div>
                 
                 <div style="background: #f0fdf4; padding: 1rem; border-radius: 1rem; border: 1px solid #dcfce7; margin-top: 1.5rem;">
@@ -290,6 +290,7 @@ function verDetalles(btn) {
                     </div>
                 </div>
                 <div>${pvs}</div>
+                ${sol.project_number ? `<div style="margin-top: 1rem; padding: 0.75rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 0.75rem;"><div style="font-size: 0.65rem; font-weight: 800; color: #1e40af; text-transform: uppercase;">PROYECTO ASOCIADO</div><div style="font-weight: 800; color: #1d4ed8; font-size: 1.1rem;">${sol.project_number}</div></div>` : ''}
             </div>
         </div>
         <div style="margin-bottom: 2rem;">

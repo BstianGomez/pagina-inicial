@@ -39,6 +39,8 @@ class StoreOcSolicitudRequest extends FormRequest
             'cod_cliente' => ['nullable', 'string', 'max:50'],
             'razon_social' => ['nullable', 'string', 'max:255'],
             'rut_razon_social' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]{1,8}-[0-9kK]{1}$/'],
+            'project_prefix' => ['nullable', 'string', 'in:OC,OT,OP'],
+            'project_number' => ['nullable', 'string', 'max:50'],
         ];
     }
 
@@ -154,6 +156,18 @@ class StoreOcSolicitudRequest extends FormRequest
         if ($this->has('monto') && $this->monto) {
             $this->merge([
                 'monto' => $this->normalizeAmount($this->monto),
+            ]);
+        }
+
+        // --- MANEJO DE N° PROYECTO / OT / OP ---
+        if ($this->has('project_prefix') && $this->has('project_number')) {
+            $prefix = strtoupper(trim($this->input('project_prefix')));
+            $number = trim($this->input('project_number'));
+            $this->merge([
+                'numero_proyecto' => "{$prefix}-{$number}",
+                // También asegurar que esté en el input original si se usa except()
+                'project_prefix' => $prefix,
+                'project_number' => $number,
             ]);
         }
     }

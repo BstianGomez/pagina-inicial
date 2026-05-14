@@ -261,7 +261,7 @@
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 <span>Exportar</span>
                             </button>
-                            <a href="{{ route('rendicion.expenses.create') }}" class="reports-toolbar-btn reports-toolbar-btn-primary">
+                            <a href="{{ route('rendicion.expenses.create', $isProject ? ['project' => 1] : []) }}" class="reports-toolbar-btn reports-toolbar-btn-primary">
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"/></svg>
                                 <span>Nueva Solicitud</span>
                             </a>

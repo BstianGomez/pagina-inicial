@@ -40,6 +40,7 @@ class SolicitudController extends Controller
     {
         $request->validate([
             'ceco'        => 'required|string',
+            'origen'      => 'required|string|max:255',
             'destino'     => 'required|string|max:255',
             'fecha_viaje' => 'required|date',
             'motivo'      => 'required|string',
@@ -72,6 +73,7 @@ class SolicitudController extends Controller
             'fecha_nacimiento' => $request->fecha_nacimiento,
             'cargo_externo'    => $request->cargo,
             'ceco'             => $request->ceco,
+            'origen'           => $request->origen,
             'destino'          => $request->destino,
             'fecha_viaje'      => $request->fecha_viaje,
             'fecha_retorno'    => $request->fecha_retorno,
@@ -85,6 +87,62 @@ class SolicitudController extends Controller
 
         return redirect()->route('viajes.mis-solicitudes')
             ->with('success', 'Solicitud enviada correctamente. Está pendiente de aprobación.');
+    }
+
+    // ── Crear Solicitud con Proyecto (vista) ─────────────────
+    public function createProyecto()
+    {
+        return view('viajes.solicitudes-proyecto');
+    }
+
+    // ── Guardar Solicitud con Proyecto ───────────────────────
+    public function storeProyecto(Request $request)
+    {
+        $request->validate([
+            'project_prefix' => 'required|in:OT,OC,OP',
+            'project_number' => 'required|numeric',
+            'ceco'           => 'required|string',
+            'origen'         => 'required|string|max:255',
+            'destino'        => 'required|string|max:255',
+            'fecha_viaje'    => 'required|date',
+            'motivo'         => 'required|string',
+        ]);
+
+        $projectNumber = $request->project_prefix . '-' . $request->project_number;
+
+        $gastos = [];
+        if ($request->has('gastos')) {
+            foreach ($request->gastos as $g) {
+                if (!empty($g['descripcion'])) {
+                    $gastos[] = ['descripcion' => $g['descripcion']];
+                }
+            }
+        }
+
+        Solicitud::create([
+            'user_id'          => Auth::id(),
+            'tipo'             => $request->tipoSolicitud ?? 'interno',
+            'nombre_externo'   => $request->nombre_externo,
+            'correo_externo'   => $request->correo_externo,
+            'rut'              => $request->rut,
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'cargo_externo'    => $request->cargo,
+            'ceco'             => $request->ceco,
+            'origen'           => $request->origen,
+            'destino'          => $request->destino,
+            'fecha_viaje'      => $request->fecha_viaje,
+            'fecha_retorno'    => $request->fecha_retorno,
+            'motivo'           => $request->motivo,
+            'alojamiento'      => $request->alojamiento === 'si',
+            'traslado'         => $request->traslado === 'si',
+            'gastos'           => $gastos,
+            'pv'               => [],
+            'project_number'   => $projectNumber,
+            'estado'           => 'pendiente',
+        ]);
+
+        return redirect()->route('viajes.mis-solicitudes')
+            ->with('success', 'Solicitud de viaje con proyecto ' . $projectNumber . ' enviada correctamente.');
     }
 
     // ── Panel Aprobador ──────────────────────────────────────

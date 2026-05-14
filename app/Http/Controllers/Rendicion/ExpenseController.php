@@ -13,10 +13,20 @@ use Illuminate\Support\Str;
 
 class ExpenseController extends Controller
 {
+	public function projectIndex()
+	{
+		$user = Auth::user();
+		$reports = Report::where('user_id', $user->id)->whereNotNull('project_number')->orderBy('created_at', 'desc')->get();
+		$categories = Category::orderBy('name')->get()->unique('name');
+		$cecos = Ceco::orderBy('code')->get();
+		
+		return view('rendicion.expenses.project', compact('reports', 'categories', 'cecos'));
+	}
+
 	public function index()
 	{
 		$user = Auth::user();
-		$reports = Report::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+		$reports = Report::where('user_id', $user->id)->whereNull('project_number')->orderBy('created_at', 'desc')->get();
 		$categories = Category::orderBy('name')->get()->unique('name');
 		$cecos = Ceco::orderBy('code')->get();
 		
@@ -32,6 +42,7 @@ class ExpenseController extends Controller
 			'expenses' => 'required|array|min:1',
 			'report_title' => $action === 'submit' ? 'required|string|max:255' : 'nullable|string|max:255',
 			'action' => 'required|in:draft,submit',
+			'project_number' => $request->has('is_project') ? 'required|string|max:255' : 'nullable|string|max:255',
 		];
 
 		// Define base rules for each expense row
@@ -54,6 +65,11 @@ class ExpenseController extends Controller
 		}
 
 		$validated = $request->validate($rules);
+
+		// Concatenate project prefix and number if it's a project
+		if ($request->filled('project_prefix') && $request->filled('project_number')) {
+			$validated['project_number'] = Str::upper(trim($request->project_prefix)) . '-' . Str::upper(trim($request->project_number));
+		}
 
 		$categoryIds = collect($validated['expenses'])->pluck('category_id')->filter()->unique()->values();
 		$categoriesById = Category::query()->whereIn('id', $categoryIds)->get()->keyBy('id');
@@ -79,6 +95,7 @@ class ExpenseController extends Controller
 					'title' => $validated['report_title'],
 					'status' => Report::STATUS_UNDER_REVIEW,
 					'total_amount' => 0,
+					'project_number' => $validated['project_number'] ?? null,
 				]);
 			}
 
@@ -102,12 +119,18 @@ class ExpenseController extends Controller
 					$categoryId = $customCat->id;
 				}
 
+				$projectNumber = $row['project_number'] ?? ($validated['project_number'] ?? null);
+				if (!empty($row['project_prefix']) && !empty($row['project_number'])) {
+					$projectNumber = Str::upper(trim($row['project_prefix'])) . '-' . Str::upper(trim($row['project_number']));
+				}
+
 				$expense = Expense::create([
 					'user_id' => $user->id,
 					'status' => $report ? Expense::STATUS_ASSIGNED : Expense::STATUS_DRAFT,
 					'report_id' => $report ? $report->id : null,
 					'category_id' => $categoryId,
-					'ceco_id' => $report ? $report->ceco_id : null,
+					'ceco_id' => null,
+					'project_number' => $projectNumber,
 					'rendition_type' => $user->has_fixed_fund ? 'Con fondo fijo' : 'Sin fondo fijo',
 					'reason' => $row['reason'],
 					'description' => $row['description'] ?? null,
@@ -120,8 +143,10 @@ class ExpenseController extends Controller
 					'comanda_path' => $comandaPath,
 				]);
 
-				if (!$report && $expense->isComplete()) {
-					$expense->update(['status' => Expense::STATUS_READY]);
+				if (!$report) {
+					if ($expense->isComplete()) {
+						$expense->update(['status' => Expense::STATUS_READY]);
+					}
 				}
 			}
 
@@ -227,7 +252,10 @@ class ExpenseController extends Controller
 		$validated['category_id'] = $categoryId;
 		$expense->update($validated);
 
-		// Re-evaluate status: if all mandatory fields are filled, it's no longer a draft (it's READY)
+		$expense->save();
+		
+		// Refresh to ensure we have the latest status from the DB if needed, although save() is enough
+		$expense->refresh();
 		if ($expense->isComplete()) {
 			$expense->status = Expense::STATUS_READY;
 		} else {

@@ -84,10 +84,6 @@
             width: 100%;
             max-width: 160px;
             height: 60px;
-            background: #fff;
-            border-radius: 1.25rem;
-            box-shadow: 0 8px 24px rgba(15,23,42,0.04);
-            border: 1px solid #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: center;

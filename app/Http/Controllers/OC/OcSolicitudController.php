@@ -61,6 +61,8 @@ class OcSolicitudController extends Controller
             'descripcion' => 'required|string',
             'cantidad' => 'required|integer|min:1',
             'monto' => 'required',
+            'project_prefix' => 'nullable|string|in:OC,OT,OP',
+            'project_number' => 'nullable|string',
         ]);
 
         try {
@@ -87,6 +89,15 @@ class OcSolicitudController extends Controller
                 'editado_por' => auth()->user()->email,
                 'fecha_edicion' => now()->toDateTimeString(),
             ]);
+
+            if ($request->has('project_prefix') && $request->has('project_number')) {
+                $prefix = strtoupper(trim($request->input('project_prefix')));
+                $number = trim($request->input('project_number'));
+                $newExtra['project_prefix'] = $prefix;
+                $newExtra['project_number'] = $number;
+                $newExtra['numero_proyecto'] = "{$prefix}-{$number}";
+            }
+
             $updateData['datos_extra'] = json_encode($newExtra, JSON_UNESCAPED_UNICODE);
 
             DB::table('oc_solicitudes')->where('id', $id)->update($updateData);

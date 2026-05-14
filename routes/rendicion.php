@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/analytics/send-gmail', [DashboardController::class, 'sendGmail'])->name('analytics.sendGmail');
     Route::get('/bandeja', [ReportController::class, 'inbox'])->name('reports.inbox');
     Route::get('/gastos', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/gastos-proyecto', [ExpenseController::class, 'projectIndex'])->name('expenses.project');
     Route::get('/gastos/borradores', [ExpenseController::class, 'drafts'])->name('expenses.drafts');
     Route::post('/gastos', [ExpenseController::class, 'storeBulk'])->name('expenses.storeBulk');
     Route::get('/gastos/{expense}/editar', [ExpenseController::class, 'edit'])->name('expenses.edit');
@@ -33,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/gastos/crear/informacion/nuevo', [ReportController::class, 'storeStep1New'])->name('expenses.storeStep1.new');
     Route::post('/gastos/crear/informacion/{report}', [ReportController::class, 'storeStep1'])->name('expenses.storeStep1');
     
+    Route::get('/rendiciones-proyecto', [ReportController::class, 'projectIndex'])->name('reports.project');
     Route::get('/informes', [ReportController::class, 'index'])->name('reports.index');
     Route::post('/informes/exportar', [ReportController::class, 'bulkExport'])->name('reports.export');
     Route::get('/informes/{report}', [ReportController::class, 'show'])->name('reports.show');

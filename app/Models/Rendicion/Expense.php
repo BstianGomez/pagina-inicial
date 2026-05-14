@@ -17,6 +17,7 @@ class Expense extends Model
         'status',
         'category_id',
         'ceco_id',
+        'project_number',
         'rendition_type',
         'reason',
         'description',
@@ -71,13 +72,26 @@ class Expense extends Model
         ];
 
         foreach ($mandatoryFields as $field) {
-            if (empty($this->{$field})) {
+            $val = $this->getAttribute($field);
+            
+            if ($field === 'amount') {
+                if (is_null($val) || (float)$val <= 0) {
+                    return false;
+                }
+                continue;
+            }
+
+            if (is_null($val) || (string)$val === '') {
                 return false;
             }
         }
 
         // Check comanda if category is food
-        $categoryName = optional($this->category)->name;
+        if (!$this->relationLoaded('category')) {
+            $this->load('category');
+        }
+
+        $categoryName = $this->category?->name;
         $needsComanda = \Illuminate\Support\Str::of((string) $categoryName)->ascii()->lower()->trim()->value() === 'alimentacion';
         if ($needsComanda && empty($this->comanda_path)) {
             return false;

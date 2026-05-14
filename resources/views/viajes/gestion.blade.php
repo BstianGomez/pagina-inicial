@@ -73,7 +73,7 @@
                         </div>
                         <div>
                             <div style="font-weight: 800; color: var(--text-main); font-size: 1rem;">{{ $sol->tipo === 'externo' ? $sol->nombre_externo : ($sol->solicitante->name ?? 'N/A') }}</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Destino: {{ $sol->destino }} · Fecha: {{ $sol->fecha_viaje->format('d/m/Y') }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Ruta: {{ $sol->origen ? $sol->origen . ' → ' : '' }}{{ $sol->destino }} · Fecha: {{ $sol->fecha_viaje->format('d/m/Y') }}</div>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem;">
@@ -86,6 +86,12 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                         <!-- Detalles -->
                         <div style="background: white; padding: 1.5rem; border-radius: 1.25rem; border: 1px solid #fef3c7; display: flex; flex-direction: column; gap: 1.25rem;">
+                            @if($sol->project_number)
+                            <div style="margin-bottom: 0.5rem; background: #fffbeb; padding: 0.75rem; border: 1px dashed #fcd34d; border-radius: 0.75rem;">
+                                <span style="font-size: 0.7rem; font-weight: 800; color: #b45309; text-transform: uppercase; display: block;">PROYECTO ASOCIADO (OT/OC/OP)</span>
+                                <span style="font-weight: 800; color: #d97706; font-size: 1.1rem;">{{ $sol->project_number }}</span>
+                            </div>
+                            @endif
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div>
                                     <span style="font-size: 0.7rem; font-weight: 800; color: #b45309; text-transform: uppercase; display: block;">PROYECTO PV</span>
@@ -121,7 +127,8 @@
                                     <label class="form-label" style="color: #92400e; font-weight: 800;">Monto Total Proyectado (CLP)</label>
                                     <div style="position: relative;">
                                         <span style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); font-weight: 800; color: #d97706; font-size: 1.1rem;">$</span>
-                                        <input type="number" name="monto_estimado" class="ms-search-input" style="padding-left: 2.5rem; border-color: #fcd34d; font-weight: 800; background: #fffcf5; font-size: 1.1rem;" placeholder="Ej: 450000" required>
+                                        <input type="hidden" name="monto_estimado" id="real_monto_est_{{ $sol->id }}">
+                                        <input type="text" class="ms-search-input money-input" data-target="real_monto_est_{{ $sol->id }}" style="padding-left: 2.5rem; border-color: #fcd34d; font-weight: 800; background: #fffcf5; font-size: 1.1rem;" placeholder="Ej: 450.000" required>
                                     </div>
                                     <p style="font-size: 0.75rem; color: #b45309; margin-top: 0.5rem;">* Este monto incluye pasajes, hotel y gastos varios.</p>
                                 </div>
@@ -173,6 +180,12 @@
                     <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem;">
                         <!-- Detalles -->
                         <div style="background: white; padding: 1.5rem; border-radius: 1.25rem; border: 1px solid #bae6fd; display: flex; flex-direction: column; gap: 1.25rem;">
+                            @if($sol->project_number)
+                            <div style="margin-bottom: 0.5rem; background: #f0f9ff; padding: 0.75rem; border: 1px dashed #7dd3fc; border-radius: 0.75rem;">
+                                <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; text-transform: uppercase; display: block;">PROYECTO ASOCIADO (OT/OC/OP)</span>
+                                <span style="font-weight: 800; color: #0284c7; font-size: 1.1rem;">{{ $sol->project_number }}</span>
+                            </div>
+                            @endif
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div>
                                     <span style="font-size: 0.7rem; font-weight: 800; color: #0369a1; text-transform: uppercase; display: block;">PROYECTO PV</span>
@@ -207,11 +220,13 @@
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
                                     <div class="form-field">
                                         <label class="form-label" style="font-size: 0.75rem; font-weight: 800; color: #0369a1;">Costo Pasaje Final (CLP)</label>
-                                        <input type="number" name="monto_pasaje" class="ms-search-input" required style="padding-left: 1rem; border-color: #bae6fd;" placeholder="0">
+                                        <input type="hidden" name="monto_pasaje" id="real_monto_pasaje_{{ $sol->id }}">
+                                        <input type="text" class="ms-search-input money-input" data-target="real_monto_pasaje_{{ $sol->id }}" required style="padding-left: 1rem; border-color: #bae6fd;" placeholder="0">
                                     </div>
                                     <div class="form-field">
                                         <label class="form-label" style="font-size: 0.75rem; font-weight: 800; color: #0369a1;">Costo Hotel Final (CLP)</label>
-                                        <input type="number" name="monto_hotel" class="ms-search-input" style="padding-left: 1rem; border-color: #bae6fd;" placeholder="Opcional">
+                                        <input type="hidden" name="monto_hotel" id="real_monto_hotel_{{ $sol->id }}">
+                                        <input type="text" class="ms-search-input money-input" data-target="real_monto_hotel_{{ $sol->id }}" style="padding-left: 1rem; border-color: #bae6fd;" placeholder="Opcional">
                                     </div>
                                 </div>
                                 <div style="margin-bottom: 1.5rem;">
@@ -253,7 +268,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Solicitante</th>
-                    <th>Destino</th>
+                    <th>Origen / Destino</th>
                     <th>Reserva / Proveedor</th>
                     <th>Costo Final</th>
                     <th>Fecha Cierre</th>
@@ -265,7 +280,12 @@
                 <tr>
                     <td style="font-weight: 800; color: var(--brand-primary);">#{{ $sol->id }}</td>
                     <td style="font-weight: 700;">{{ $sol->tipo === 'externo' ? $sol->nombre_externo : ($sol->solicitante->name ?? 'N/A') }}</td>
-                    <td style="font-weight: 600;">{{ $sol->destino }}</td>
+                    <td style="font-weight: 600;">
+                        @if($sol->origen)
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $sol->origen }}</div>
+                        @endif
+                        {{ $sol->destino }}
+                    </td>
                     <td>
                         <div style="font-weight: 700; color: var(--text-main);">{{ $sol->gestion?->nro_reserva ?? '—' }}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $sol->gestion?->linea_aerea ?? '—' }}</div>
@@ -337,6 +357,24 @@ function toggleGestionForm(id) {
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .ms-kpi.active { transform: translateY(-5px); box-shadow: 0 12px 20px -10px rgba(0,0,0,0.1); }
 </style>
+<script>
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('money-input')) {
+        let value = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+        
+        let targetId = e.target.getAttribute('data-target');
+        if (targetId) {
+            document.getElementById(targetId).value = value;
+        }
+        
+        if (value) {
+            e.target.value = new Intl.NumberFormat('es-CL').format(value);
+        } else {
+            e.target.value = '';
+        }
+    }
+});
+</script>
 @endpush
 
 @endsection

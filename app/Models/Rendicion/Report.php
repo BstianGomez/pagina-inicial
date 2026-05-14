@@ -30,7 +30,8 @@ class Report extends Model
         'status', 
         'observation', 
         'total_amount',
-        'ceco_id'
+        'ceco_id',
+        'project_number'
     ];
 
     public static function pendingStatuses(): array

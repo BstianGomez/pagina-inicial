@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" style="background-color: #ffffff;">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -278,7 +278,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #ffffff;">
     <div class="login-wrapper">
         <!-- Lado Izquierdo: Branding -->
         <div class="login-left">

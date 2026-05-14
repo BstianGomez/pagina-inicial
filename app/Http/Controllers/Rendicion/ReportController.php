@@ -16,10 +16,21 @@ use Illuminate\Support\Str;
 
 class ReportController extends Controller
 {
-    public function index(Request $request)
+    public function projectIndex(Request $request)
+    {
+        return $this->index($request, true);
+    }
+
+    public function index(Request $request, $onlyProjects = false)
     {
         $user = Auth::user();
         $query = Report::query()->with(['user', 'expenses.category', 'expenses.ceco']);
+
+        if ($onlyProjects) {
+            $query->whereNotNull('project_number');
+        } else {
+            $query->whereNull('project_number');
+        }
 
         // Apply filters
         if ($request->filled('search')) {
@@ -101,7 +112,8 @@ class ReportController extends Controller
             Report::STATUS_REIMBURSED,
         ];
 
-        return view('rendicion.reports.index', compact('reports', 'categories', 'statuses', 'cecos'));
+        $isProject = $onlyProjects;
+        return view('rendicion.reports.index', compact('reports', 'categories', 'statuses', 'cecos', 'isProject'));
     }
 
     public function bulkExport(Request $request)
@@ -213,15 +225,17 @@ class ReportController extends Controller
         return view('rendicion.reports.show', compact('report'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         // Todos los usuarios autenticados pueden crear rendiciones
+        $projectNumber = $request->query('project') ? 'PROYECTO_PENDIENTE' : null;
 
         $report = Report::create([
             'user_id' => Auth::id(),
             'title' => 'Borrador de rendición',
             'status' => Report::STATUS_DRAFT,
             'total_amount' => 0,
+            'project_number' => $projectNumber,
         ]);
 
         return redirect()->route('rendicion.expenses.createStep1', ['report' => $report->id]);
@@ -241,7 +255,21 @@ class ReportController extends Controller
         $cecos = Ceco::query()->whereNotIn('code', ['TI-001', 'ADM-002', 'RRHH-003', 'COM-004'])->orderBy('code')->get();
         $expense = $report->expenses()->latest()->first();
 
-        return view('rendicion.reports.create-step1', compact('report', 'expense', 'cecos'));
+        // For project reports: fetch distinct project numbers from available expenses
+        $availableProjects = [];
+        if ($report->project_number) {
+            $availableProjects = \App\Models\Rendicion\Expense::where('user_id', $user->id)
+                ->whereNotNull('project_number')
+                ->whereNull('report_id')
+                ->whereIn('status', [\App\Models\Rendicion\Expense::STATUS_DRAFT, \App\Models\Rendicion\Expense::STATUS_READY])
+                ->distinct()
+                ->pluck('project_number')
+                ->sort()
+                ->values()
+                ->toArray();
+        }
+
+        return view('rendicion.reports.create-step1', compact('report', 'expense', 'cecos', 'availableProjects'));
     }
 
     public function storeStep1(Request $request, Report $report)
@@ -260,9 +288,20 @@ class ReportController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'ceco_id' => 'nullable|exists:cecos,id',
+            'project_number' => $report->project_number ? 'required|string|max:255' : 'nullable|string|max:255',
+            'project_prefix' => 'nullable|string|in:OT,OC,OP',
         ]);
 
-        $report->update(['title' => $validated['title'], 'ceco_id' => $validated['ceco_id']]);
+        $projectNumber = $validated['project_number'] ?? $report->project_number;
+        if ($request->filled('project_prefix') && $request->filled('project_number')) {
+            $projectNumber = Str::upper(trim($request->project_prefix)) . '-' . Str::upper(trim($request->project_number));
+        }
+
+        $report->update([
+            'title' => $validated['title'], 
+            'ceco_id' => $validated['ceco_id'],
+            'project_number' => $projectNumber
+        ]);
 
         // "Continuar" from Step 1 should always move to Step 2 (expense selection).
         if ($request->input('action') !== 'draft') {
@@ -330,11 +369,23 @@ class ReportController extends Controller
         }
 
         $assignedExpenses = $report->expenses()->with('category', 'ceco')->get();
+        $isProjectReport = !empty($report->project_number);
+
         $availableExpenses = \App\Models\Rendicion\Expense::where('amount', '>', 0)
-            ->where(function ($q) use ($user, $report) {
-                $q->where(function ($subQ) use ($user) {
+            ->where(function ($q) use ($user, $report, $isProjectReport) {
+                $q->where(function ($subQ) use ($user, $report, $isProjectReport) {
                     $subQ->where('user_id', $user->id)
-                         ->where('status', \App\Models\Rendicion\Expense::STATUS_READY);
+                         ->whereNull('report_id');
+
+                    if ($isProjectReport) {
+                        // For project reports: show all expenses that have ANY project_number
+                        $subQ->whereIn('status', [\App\Models\Rendicion\Expense::STATUS_DRAFT, \App\Models\Rendicion\Expense::STATUS_READY])
+                             ->whereNotNull('project_number');
+                    } else {
+                        // For normal reports: only show READY expenses with no project number
+                        $subQ->where('status', \App\Models\Rendicion\Expense::STATUS_READY)
+                             ->whereNull('project_number');
+                    }
                 })->orWhereHas('report', function ($subQ) use ($user, $report) {
                     $subQ->where('user_id', $user->id)
                         ->where('id', '!=', $report->id)
